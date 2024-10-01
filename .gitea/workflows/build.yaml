@@ -1,0 +1,97 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - id: commit
+        uses: prompt/actions-commit-hash@v3
+      - name: Setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '^1.22'
+      - name: Get dependencies
+        run: |
+          go env -w GO111MODULE=on && go env -w GOPROXY=https://goproxy.cn,direct
+          go mod download
+      - name: Build
+        run: |
+          CGO_ENABLED=0 go build -ldflags "-w -s" -gcflags "-N -l" -o main .
+      - name: 'Login to Container Registry'
+        uses: docker/login-action@v3
+        with:
+          registry: leafdev.top
+          username: ${{ gitea.actor }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+      - name: 'Build Inventory Image'
+        run: |
+            docker build . -f Dockerfile2 --tag leafdev.top/leaf/rag-new:${{ steps.commit.outputs.short }}
+            docker push leafdev.top/leaf/rag-new:${{ steps.commit.outputs.short }}
+            docker tag leafdev.top/leaf/rag-new:${{ steps.commit.outputs.short }} leafdev.top/leaf/rag-new:latest
+      - name: 'Checkout Manifests branch'
+        uses: actions/checkout@v4
+        with:
+          ref: manifests
+
+      - name: 'Patch API Manifest'
+        uses: fjogeleit/yaml-update-action@main
+        with:
+           valueFile: 'manifests/deployment-api.yaml'
+           propertyPath: 'spec.template.spec.containers[0].image'
+           value: 'leafdev.top/leaf/rag-new:${{ steps.commit.outputs.short }}'
+           commitChange: false
+      - name: 'Patch Schedule Manifest'
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'manifests/deployment-schedule.yaml'
+          propertyPath: 'spec.template.spec.containers[0].image'
+          value: 'leafdev.top/leaf/rag-new:${{ steps.commit.outputs.short }}'
+          commitChange: false
+      - name: Push
+        run: |
+          git config user.name ${{ gitea.actor }}
+          git config user.email ${{ gitea.actor }}@users.noreply.leafdev.top
+          git add manifests/deployment-api.yaml
+          git add manifests/deployment-schedule.yaml
+          git commit -m "Update manifests"
+          git push origin manifests
+#      - name: docker
+#        run: |
+#          - name: Build Docker Image
+#               run: |
+#                 docker build -t ${{ env.REGISTRY }}/${{ steps.meta.outputs.tags }} -f ./docker/nginx/Dockerfile .
+#             - name: Push Docker Image
+#               run: |
+#                 docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} ${{ env.REGISTRY }}
+#                 docker push ${{ env.REGISTRY }}/${{ steps.meta.outputs.tags }}
+#      - name: Artifact
+#        uses: christopherhx/gitea-upload-artifact@v4
+#        with:
+#          name: artifact
+#          path: cmd/main
+#  push:
+#    runs-on: ubuntu-latest
+##    needs: [build]
+#    steps:
+#      - uses: https://github.com/actions/checkout@v4
+#      - name: Set up Docker Buildx
+#        uses: https://github.com/docker/setup-buildx-action@v3
+#        with:
+#          config-inline: |
+#            [registry."<my-private-unsecure-git-repository-ip-address>:5000"]
+#              http = true
+#              insecure = true
+#      - name: Build and push Docker image
+#        uses: https://github.com/docker/build-push-action@v5
+#        with:
+#          context: .
+#          file: ./Dockerfile
+#          push: true
+#          tags: "<my-private-unsecure-git-repository-ip-address>:5000/<my-docker-image>:${{gitea.sha}},<my-private-unsecure-git-repository-ip-address>:5000/<my-docker-image>:latest"

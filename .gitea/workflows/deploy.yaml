@@ -1,0 +1,25 @@
+name: Deploy
+
+on: [release]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set output
+        id: vars
+        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+      - name: Check output
+        env:
+          GITHUB_RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+        run: |
+          # check if GITHUB_RELEASE_VERSION is not empty
+      - name: Deploy
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: leafdev.top/rag-new:latest

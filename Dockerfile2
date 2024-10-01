@@ -1,0 +1,8 @@
+# docker build -t registry.leafdev.top/leaf/rag-new:v0.0.1-fix . -f Dockerfile2
+# RUN
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY ./main /app/main
+ENTRYPOINT ["/app/main"]
