@@ -1,0 +1,51 @@
+http:
+  port: 8080
+  host: 0.0.0.0
+  # the production url
+  url: http://127.0.0.1:8080
+
+debug:
+  enabled: false
+
+database:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: root
+  name: db_name
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: ""
+  db: 0
+
+jwks:
+  url: ""
+
+metrics:
+  enabled: true
+  port: 8081
+  host: 0.0.0.0
+
+s3:
+  endpoint: 127.0.0.1:9000
+  external_endpoint: 127.0.0.1:9000
+  access_key: minio
+  secret_key: minio123
+  bucket: amber
+  use_ssl: false
+  region:
+
+
+kafka:
+  bootstrap_servers:
+    - 127.0.0.1:9092
+  topic: "amber"
+  group_id: ""
+  # Plain
+  username: ""
+  password: ""
+
+third_party:
+  openai_api_key: ""
