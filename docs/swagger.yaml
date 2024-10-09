@@ -24,7 +24,7 @@ definitions:
     type: object
 info:
   contact: {}
-  title: Leaflow Amber
+  title: API Docs
   version: "1.0"
 paths:
   /api/v1/ping:

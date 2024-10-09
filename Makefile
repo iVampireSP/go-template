@@ -9,4 +9,4 @@ generate:
 	go generate ./...
 
 swag:
-	swag init -g amber.go --parseDependency
+	swag init -g main.go --parseDependency

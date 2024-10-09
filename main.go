@@ -4,7 +4,7 @@ import (
 	"go-template/cmd"
 )
 
-// @title           Leaflow Amber
+// @title           API Docs
 // @version         1.0
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
