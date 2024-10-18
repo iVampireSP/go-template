@@ -4,6 +4,8 @@ package conf
 type Config struct {
 	Http *Http `yaml:"http"`
 
+	Grpc *Grpc `yaml:"grpc"`
+
 	Debug *Debug `yaml:"debug"`
 
 	Database *Database `yaml:"database"`
@@ -79,3 +81,7 @@ type Kafka struct {
 }
 
 type KafkaBootstrapServers []string
+
+type Grpc struct {
+	Address string `yaml:"address" mapstructure:"address"`
+}

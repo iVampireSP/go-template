@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = ".;documentService";
+
+service DocumentService {
+  rpc ListDocuments(ListDocumentsRequest) returns (ListDocumentsResponse);
+}
+
+message ListDocumentsRequest {
+  string Message = 1;
+}
+
+message ListDocumentsResponse {
+  string Message = 1;
+}

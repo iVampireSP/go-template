@@ -4,6 +4,9 @@ http:
   # the production url
   url: http://127.0.0.1:8080
 
+grpc:
+  address: 0.0.0.0:9090
+
 debug:
   enabled: false
 

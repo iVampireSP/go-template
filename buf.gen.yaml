@@ -1,0 +1,19 @@
+version: v1
+
+plugins:
+  - name: go
+    out: .
+    opt: paths=source_relative
+  - name: go-grpc
+    out: .
+    opt: paths=source_relative
+  - plugin: buf.build/grpc-ecosystem/gateway:v2.22.0
+    out: .
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+  - plugin: buf.build/grpc-ecosystem/openapiv2:v2.22.0
+    out: pkg/protos/document
+    opt:
+      - allow_merge
+#      - merge_file_name=mce-spider

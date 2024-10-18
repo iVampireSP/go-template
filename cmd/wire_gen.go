@@ -18,6 +18,7 @@ import (
 	"go-template/internal/base/server"
 	"go-template/internal/batch"
 	"go-template/internal/dao"
+	v1_2 "go-template/internal/handler/grpc"
 	"go-template/internal/middleware"
 	"go-template/internal/router"
 	"go-template/internal/service"
@@ -49,4 +50,4 @@ func CreateApp() (*base.Application, error) {
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, middleware.Provider, batch.NewBatch, service.Provider, v1.ProviderApiControllerSet, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)
+var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, middleware.Provider, batch.NewBatch, service.Provider, v1.ProviderApiControllerSet, v1_2.ProviderGrpcHandlerSet, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)
