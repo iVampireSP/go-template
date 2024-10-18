@@ -14,7 +14,8 @@ import (
 	"go-template/internal/base/server"
 	"go-template/internal/batch"
 	"go-template/internal/dao"
-	grpc "go-template/internal/handler/grpc"
+	"go-template/internal/handler"
+	"go-template/internal/handler/grpc"
 	"go-template/internal/middleware"
 	"go-template/internal/router"
 	"go-template/internal/service"
@@ -34,6 +35,8 @@ var ProviderSet = wire.NewSet(
 	service.Provider,
 	v1.ProviderApiControllerSet,
 	grpc.ProviderGrpcHandlerSet,
+	grpc.NewGrpcHandlers,
+	handler.NewHandler,
 	router.ProviderSetRouter,
 	server.NewHTTPServer,
 	base.NewApplication,

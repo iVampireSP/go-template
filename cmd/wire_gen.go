@@ -18,7 +18,9 @@ import (
 	"go-template/internal/base/server"
 	"go-template/internal/batch"
 	"go-template/internal/dao"
-	v1_2 "go-template/internal/handler/grpc"
+	"go-template/internal/handler"
+	"go-template/internal/handler/grpc"
+	"go-template/internal/handler/grpc/documents"
 	"go-template/internal/middleware"
 	"go-template/internal/router"
 	"go-template/internal/service"
@@ -38,16 +40,19 @@ func CreateApp() (*base.Application, error) {
 	swaggerRouter := router.NewSwaggerRoute()
 	middlewareMiddleware := middleware.NewMiddleware(loggerLogger, authService)
 	httpServer := server.NewHTTPServer(config, api, swaggerRouter, middlewareMiddleware)
+	db := orm.NewGORM(config, loggerLogger)
+	query := dao.NewQuery(db)
+	documentService := documents.NewDocumentService(query)
+	handlers := grpc.NewGrpcHandlers(documentService)
+	handlerHandler := handler.NewHandler(handlers)
 	serviceService := service.NewService(loggerLogger, jwksJWKS, authService)
 	redisRedis := redis.NewRedis(config)
 	batchBatch := batch.NewBatch(loggerLogger)
 	s3S3 := s3.NewS3(config)
-	db := orm.NewGORM(config, loggerLogger)
-	query := dao.NewQuery(db)
-	application := base.NewApplication(config, httpServer, loggerLogger, serviceService, middlewareMiddleware, redisRedis, batchBatch, s3S3, db, query)
+	application := base.NewApplication(config, httpServer, handlerHandler, loggerLogger, serviceService, middlewareMiddleware, redisRedis, batchBatch, s3S3, db, query)
 	return application, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, middleware.Provider, batch.NewBatch, service.Provider, v1.ProviderApiControllerSet, v1_2.ProviderGrpcHandlerSet, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)
+var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, middleware.Provider, batch.NewBatch, service.Provider, v1.ProviderApiControllerSet, grpc.ProviderGrpcHandlerSet, grpc.NewGrpcHandlers, handler.NewHandler, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)

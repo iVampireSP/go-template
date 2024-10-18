@@ -8,6 +8,7 @@ import (
 	"go-template/internal/base/server"
 	"go-template/internal/batch"
 	"go-template/internal/dao"
+	"go-template/internal/handler"
 	"go-template/internal/middleware"
 	"go-template/internal/service"
 	"gorm.io/gorm"
@@ -24,11 +25,13 @@ type Application struct {
 	Redis      *redis.Redis
 	Batch      *batch.Batch
 	S3         *s3.S3
+	Handler    *handler.Handler
 }
 
 func NewApplication(
 	config *conf.Config,
 	httpServer *server.HttpServer,
+	handler *handler.Handler,
 	logger *logger.Logger,
 	services *service.Service,
 	middleware *middleware.Middleware,
@@ -41,6 +44,7 @@ func NewApplication(
 	return &Application{
 		Config:     config,
 		HttpServer: httpServer,
+		Handler:    handler,
 		Logger:     logger,
 		Service:    services,
 		Middleware: middleware,

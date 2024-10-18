@@ -1,4 +1,4 @@
-package v1
+package grpc
 
 import (
 	"github.com/google/wire"
@@ -9,14 +9,14 @@ var ProviderGrpcHandlerSet = wire.NewSet(
 	documents.NewDocumentService,
 )
 
-type GrpcHandlers struct {
+type Handlers struct {
 	DocumentService *documents.DocumentService
 }
 
 func NewGrpcHandlers(
 	documentService *documents.DocumentService,
-) *GrpcHandlers {
-	return &GrpcHandlers{
+) *Handlers {
+	return &Handlers{
 		DocumentService: documentService,
 	}
 }

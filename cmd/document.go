@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"go-template/internal/handler/grpc/documents"
 	"go-template/pkg/protos/documentService"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -31,7 +30,7 @@ var documentServiceCommand = &cobra.Command{
 		}
 		s := grpc.NewServer()
 
-		documentService.RegisterDocumentServiceServer(s, documents.NewDocumentService())
+		documentService.RegisterDocumentServiceServer(s, app.Handler.GRPC.DocumentService)
 		reflection.Register(s)
 
 		app.Logger.Sugar.Info("Document Service listing on " + app.Config.Grpc.Address)
