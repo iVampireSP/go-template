@@ -2,15 +2,16 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-template/internal/base/logger"
 	"go.uber.org/zap"
 	"time"
 )
 
 type GinLoggerMiddleware struct {
-	logger *zap.Logger
+	logger *logger.Logger
 }
 
-func NewGinLoggerMiddleware(logger *zap.Logger) *GinLoggerMiddleware {
+func NewGinLoggerMiddleware(logger *logger.Logger) *GinLoggerMiddleware {
 	return &GinLoggerMiddleware{
 		logger: logger,
 	}
@@ -24,7 +25,7 @@ func (l *GinLoggerMiddleware) GinLogger(c *gin.Context) {
 	c.Next()
 
 	cost := time.Since(start)
-	l.logger.Info(path,
+	l.logger.Logger.Info(path,
 		zap.Int("status", c.Writer.Status()),
 		zap.String("method", c.Request.Method),
 		zap.String("path", path),

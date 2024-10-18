@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/spf13/cobra"
 	"go-template/pkg/protos/documentService"
 	"google.golang.org/grpc"
@@ -28,14 +30,25 @@ var documentServiceCommand = &cobra.Command{
 		if err != nil {
 			app.Logger.Sugar.Fatal(err)
 		}
-		s := grpc.NewServer()
+		var opts = []grpc.ServerOption{
+			grpc.ChainUnaryInterceptor(
+				logging.UnaryServerInterceptor(app.Handler.GRPC.Interceptor.Logger.ZapLogInterceptor()),
 
-		documentService.RegisterDocumentServiceServer(s, app.Handler.GRPC.DocumentService)
-		reflection.Register(s)
+				auth.UnaryServerInterceptor(app.Handler.GRPC.Interceptor.Auth.JwtAuth),
+			),
+			grpc.ChainStreamInterceptor(
+				logging.StreamServerInterceptor(app.Handler.GRPC.Interceptor.Logger.ZapLogInterceptor()),
+				auth.StreamServerInterceptor(app.Handler.GRPC.Interceptor.Auth.JwtAuth),
+			),
+		}
+		grpcServer := grpc.NewServer(opts...)
+
+		documentService.RegisterDocumentServiceServer(grpcServer, app.Handler.GRPC.DocumentService)
+		reflection.Register(grpcServer)
 
 		app.Logger.Sugar.Info("Document Service listing on " + app.Config.Grpc.Address)
 
-		if err := s.Serve(lis); err != nil {
+		if err := grpcServer.Serve(lis); err != nil {
 			app.Logger.Sugar.Fatal(err)
 		}
 	},

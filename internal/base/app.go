@@ -9,23 +9,23 @@ import (
 	"go-template/internal/batch"
 	"go-template/internal/dao"
 	"go-template/internal/handler"
-	"go-template/internal/middleware"
+	"go-template/internal/handler/http"
 	"go-template/internal/service"
 	"gorm.io/gorm"
 )
 
 type Application struct {
 	Config     *conf.Config
-	HttpServer *server.HttpServer
 	Logger     *logger.Logger
+	Handler    *handler.Handler
+	Middleware *http.Middleware
+	HttpServer *server.HttpServer
 	GORM       *gorm.DB
 	DAO        *dao.Query
 	Service    *service.Service
-	Middleware *middleware.Middleware
 	Redis      *redis.Redis
 	Batch      *batch.Batch
 	S3         *s3.S3
-	Handler    *handler.Handler
 }
 
 func NewApplication(
@@ -34,7 +34,7 @@ func NewApplication(
 	handler *handler.Handler,
 	logger *logger.Logger,
 	services *service.Service,
-	middleware *middleware.Middleware,
+	middleware *http.Middleware,
 	redis *redis.Redis,
 	batch *batch.Batch,
 	S3 *s3.S3,

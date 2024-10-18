@@ -8,7 +8,6 @@ package cmd
 
 import (
 	"github.com/google/wire"
-	"go-template/internal/api/v1"
 	"go-template/internal/base"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
@@ -21,7 +20,9 @@ import (
 	"go-template/internal/handler"
 	"go-template/internal/handler/grpc"
 	"go-template/internal/handler/grpc/documents"
-	"go-template/internal/middleware"
+	"go-template/internal/handler/http"
+	"go-template/internal/handler/http/controller/v1"
+	"go-template/internal/handler/http/middleware"
 	"go-template/internal/router"
 	"go-template/internal/service"
 	"go-template/internal/service/auth"
@@ -36,23 +37,27 @@ func CreateApp() (*base.Application, error) {
 	jwksJWKS := jwks.NewJWKS(config, loggerLogger)
 	authService := auth.NewAuthService(config, jwksJWKS, loggerLogger)
 	userController := v1.NewUserController(authService)
-	api := router.NewApiRoute(userController)
+	handlers := http.NewHandler(userController)
+	api := router.NewApiRoute(handlers)
 	swaggerRouter := router.NewSwaggerRoute()
-	middlewareMiddleware := middleware.NewMiddleware(loggerLogger, authService)
-	httpServer := server.NewHTTPServer(config, api, swaggerRouter, middlewareMiddleware)
+	ginLoggerMiddleware := middleware.NewGinLoggerMiddleware(loggerLogger)
+	authMiddleware := middleware.NewAuthMiddleware(authService)
+	jsonResponseMiddleware := middleware.NewJSONResponseMiddleware()
+	httpMiddleware := http.NewMiddleware(ginLoggerMiddleware, authMiddleware, jsonResponseMiddleware)
+	httpServer := server.NewHTTPServer(config, api, swaggerRouter, httpMiddleware)
 	db := orm.NewGORM(config, loggerLogger)
 	query := dao.NewQuery(db)
 	documentService := documents.NewDocumentService(query)
-	handlers := grpc.NewGrpcHandlers(documentService)
-	handlerHandler := handler.NewHandler(handlers)
+	grpcHandlers := grpc.NewHandler(documentService)
+	handlerHandler := handler.NewHandler(grpcHandlers, handlers)
 	serviceService := service.NewService(loggerLogger, jwksJWKS, authService)
 	redisRedis := redis.NewRedis(config)
 	batchBatch := batch.NewBatch(loggerLogger)
 	s3S3 := s3.NewS3(config)
-	application := base.NewApplication(config, httpServer, handlerHandler, loggerLogger, serviceService, middlewareMiddleware, redisRedis, batchBatch, s3S3, db, query)
+	application := base.NewApplication(config, httpServer, handlerHandler, loggerLogger, serviceService, httpMiddleware, redisRedis, batchBatch, s3S3, db, query)
 	return application, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, middleware.Provider, batch.NewBatch, service.Provider, v1.ProviderApiControllerSet, grpc.ProviderGrpcHandlerSet, grpc.NewGrpcHandlers, handler.NewHandler, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)
+var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, batch.NewBatch, service.Provider, handler.ProviderSet, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)

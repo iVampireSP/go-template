@@ -50,6 +50,14 @@ func (a *Service) GinMiddlewareAuth(tokenType schema.JWTTokenTypes, c *gin.Conte
 	return a.parseUserJWT(tokenType, authSplit[1])
 }
 
+func (a *Service) AuthFromToken(tokenType schema.JWTTokenTypes, token string) (*schema.User, error) {
+	if a.config.Debug.Enabled {
+		return a.parseUserJWT(tokenType, "")
+	}
+
+	return a.parseUserJWT(tokenType, token)
+}
+
 func (a *Service) GetUserFromIdToken(idToken string) (*schema.User, error) {
 	return a.parseUserJWT(schema.JWTIDToken, idToken)
 }

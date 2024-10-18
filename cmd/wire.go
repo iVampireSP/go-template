@@ -4,7 +4,6 @@
 package cmd
 
 import (
-	v1 "go-template/internal/api/v1"
 	"go-template/internal/base"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
@@ -15,8 +14,6 @@ import (
 	"go-template/internal/batch"
 	"go-template/internal/dao"
 	"go-template/internal/handler"
-	"go-template/internal/handler/grpc"
-	"go-template/internal/middleware"
 	"go-template/internal/router"
 	"go-template/internal/service"
 
@@ -30,13 +27,9 @@ var ProviderSet = wire.NewSet(
 	dao.NewQuery,
 	redis.NewRedis,
 	s3.NewS3,
-	middleware.Provider,
 	batch.NewBatch,
 	service.Provider,
-	v1.ProviderApiControllerSet,
-	grpc.ProviderGrpcHandlerSet,
-	grpc.NewGrpcHandlers,
-	handler.NewHandler,
+	handler.ProviderSet,
 	router.ProviderSetRouter,
 	server.NewHTTPServer,
 	base.NewApplication,

@@ -2,7 +2,7 @@ package server
 
 import (
 	"go-template/internal/base/conf"
-	"go-template/internal/middleware"
+	httpHandler "go-template/internal/handler/http"
 	"go-template/internal/router"
 	"go-template/internal/schema"
 	"go-template/pkg/consts"
@@ -24,7 +24,7 @@ type HttpServer struct {
 	Gin           *gin.Engine
 	apiRouter     *router.Api
 	swaggerRouter *router.SwaggerRouter
-	middleware    *middleware.Middleware
+	middleware    *httpHandler.Middleware
 }
 
 // NewHTTPServer new http server.
@@ -32,7 +32,7 @@ func NewHTTPServer(
 	config *conf.Config,
 	apiRouter *router.Api,
 	swaggerRouter *router.SwaggerRouter,
-	middleware *middleware.Middleware,
+	middleware *httpHandler.Middleware,
 ) *HttpServer {
 	if config.Debug.Enabled {
 		gin.SetMode(gin.DebugMode)
