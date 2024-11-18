@@ -2,6 +2,8 @@ package conf
 
 // Config 配置文件不能有下划线或横线，否则不能解析
 type Config struct {
+	App *App `yaml:"app"`
+
 	Http *Http `yaml:"http"`
 
 	Grpc *Grpc `yaml:"grpc"`
@@ -21,6 +23,10 @@ type Config struct {
 	Kafka *Kafka `yaml:"kafka"`
 
 	ThirdParty *ThirdParty `yaml:"third_party" mapstructure:"third_party"`
+}
+
+type App struct {
+	Name string `yaml:"name"`
 }
 
 type ThirdParty struct {

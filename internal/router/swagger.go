@@ -1,11 +1,10 @@
 package router
 
 import (
+	"github.com/labstack/echo/v4"
 	_ "go-template/docs"
 
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type SwaggerRouter struct {
@@ -16,6 +15,6 @@ func NewSwaggerRoute() *SwaggerRouter {
 	return &SwaggerRouter{}
 }
 
-func (a *SwaggerRouter) Register(r *gin.RouterGroup) {
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+func (a *SwaggerRouter) Register(e *echo.Group) {
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 }

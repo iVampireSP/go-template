@@ -2,35 +2,22 @@ package http
 
 import (
 	"github.com/google/wire"
+	"github.com/labstack/echo/v4"
+	"go-template/internal/base/conf"
+	"go-template/internal/base/logger"
 	v1 "go-template/internal/handler/http/controller/v1"
 	"go-template/internal/handler/http/middleware"
+	"go-template/internal/service/auth"
 )
 
-var ProviderSet = wire.NewSet(
-	middleware.NewAuthMiddleware,
-	middleware.NewGinLoggerMiddleware,
-	middleware.NewJSONResponseMiddleware,
-	NewMiddleware,
-	v1.NewUserController,
-	NewHandler,
-)
-
-type Middleware struct {
-	GinLogger    *middleware.GinLoggerMiddleware
-	Auth         *middleware.AuthMiddleware
-	JSONResponse *middleware.JSONResponseMiddleware
+type IMiddleware interface {
+	Handler() echo.MiddlewareFunc
 }
 
-func NewMiddleware(
-	GinLogger *middleware.GinLoggerMiddleware,
-	Auth *middleware.AuthMiddleware,
-	JSONResponse *middleware.JSONResponseMiddleware,
-) *Middleware {
-	return &Middleware{
-		Auth:         Auth,
-		GinLogger:    GinLogger,
-		JSONResponse: JSONResponse,
-	}
+type Middleware struct {
+	Logger       IMiddleware
+	Auth         IMiddleware
+	JSONResponse IMiddleware
 }
 
 type Handlers struct {
@@ -44,3 +31,20 @@ func NewHandler(
 		User: user,
 	}
 }
+
+func NewMiddleware(config *conf.Config, logger *logger.Logger, authService *auth.Service) *Middleware {
+	return &Middleware{
+		Logger:       middleware.NewLoggerMiddleware(logger.Logger),
+		Auth:         middleware.NewAuthMiddleware(config, authService),
+		JSONResponse: middleware.NewJSONResponseMiddleware(),
+	}
+}
+
+var ProviderSet = wire.NewSet(
+	middleware.NewAuthMiddleware,
+	middleware.NewLoggerMiddleware,
+	middleware.NewJSONResponseMiddleware,
+	NewMiddleware,
+	v1.NewUserController,
+	NewHandler,
+)

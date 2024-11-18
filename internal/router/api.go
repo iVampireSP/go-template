@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"go-template/internal/handler/http"
 )
 
@@ -27,12 +27,12 @@ func NewApiRoute(
 	}
 }
 
-func (a *Api) InitApiRouter(r *gin.RouterGroup) {
+func (a *Api) InitApiRouter(r *echo.Group) {
 	//r.GET("/ping", a.User.Test)
 
 	r.GET("/ping", a.HttpHandler.User.Test)
 }
 
-func (a *Api) InitNoAuthApiRouter(r *gin.RouterGroup) {
+func (a *Api) InitNoAuthApiRouter(r *echo.Group) {
 
 }

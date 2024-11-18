@@ -1,11 +1,11 @@
-package schema
+package response
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
-type ResponseBody struct {
+type Body struct {
 	Message string `json:"message"`
 	Error   string `json:"error"`
 	Success bool   `json:"success"`
@@ -14,18 +14,18 @@ type ResponseBody struct {
 }
 
 type HttpResponse struct {
-	body       *ResponseBody
+	body       *Body
 	httpStatus int
-	ctx        *gin.Context
+	ctx        echo.Context
 }
 
-func NewResponse(c *gin.Context) *HttpResponse {
+func Ctx(c echo.Context) *HttpResponse {
 	return &HttpResponse{
-		body: &ResponseBody{
+		body: &Body{
 			Wrap: true,
 		},
-		httpStatus: 0,
 		ctx:        c,
+		httpStatus: 0,
 	}
 }
 
@@ -87,7 +87,7 @@ func (r *HttpResponse) Status(status int) *HttpResponse {
 
 }
 
-func (r *HttpResponse) Send() {
+func (r *HttpResponse) Send() error {
 	if r.httpStatus == 0 {
 		r.httpStatus = http.StatusOK
 	}
@@ -96,20 +96,15 @@ func (r *HttpResponse) Send() {
 	r.body.Success = r.httpStatus >= http.StatusOK && r.httpStatus < http.StatusMultipleChoices
 
 	if r.body.Wrap {
-		r.ctx.JSON(r.httpStatus, r.body)
-		return
+		return r.ctx.JSON(r.httpStatus, r.body)
 	}
 
-	r.ctx.JSON(r.httpStatus, r.body.Data)
-}
-
-func (r *HttpResponse) Abort() {
-	r.ctx.Abort()
+	return r.ctx.JSON(r.httpStatus, r.body.Data)
 }
 
 //
 //func ResponseMessage(c *gin.Context, code int, message string, data interface{}) {
-//	c.JSON(code, &ResponseBody{
+//	c.JSON(code, &Body{
 //		Message: message,
 //		Data:    data,
 //	})
@@ -117,14 +112,14 @@ func (r *HttpResponse) Abort() {
 //}
 //
 //func ResponseError(c *gin.Context, code int, err error) {
-//	c.JSON(code, &ResponseBody{
+//	c.JSON(code, &Body{
 //		Error: err.Error(),
 //	})
 //	c.Abort()
 //}
 //
 //func Response(c *gin.Context, code int, data interface{}) {
-//	c.JSON(code, &ResponseBody{
+//	c.JSON(code, &Body{
 //		Data: data,
 //	})
 //	c.Abort()

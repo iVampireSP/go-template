@@ -1,11 +1,11 @@
 package v1
 
 import (
+	"github.com/labstack/echo/v4"
+	"go-template/internal/handler/http/response"
 	"go-template/internal/schema"
 	"go-template/internal/service/auth"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
@@ -27,16 +27,19 @@ func NewUserController(authService *auth.Service) *UserController {
 // @Success      200  {object}  schema.ResponseBody{data=schema.CurrentUserResponse}
 // @Failure      400  {object}  schema.ResponseBody
 // @Router       /api/v1/ping [get]
-func (u *UserController) Test(c *gin.Context) {
-	user := u.authService.GetUser(c)
+func (u *UserController) Test(c echo.Context) error {
+	user, ok := u.authService.GetUser(c)
+	if !ok {
+		return response.Ctx(c).Status(http.StatusUnauthorized).Send()
+	}
 
 	var currentUserResponse = &schema.CurrentUserResponse{
-		IP:        c.ClientIP(),
+		IP:        c.Request().RemoteAddr,
 		Valid:     user.Valid,
 		UserEmail: user.Token.Email,
 		UserId:    user.Token.Sub,
 		UserName:  user.Token.Name,
 	}
 
-	schema.NewResponse(c).Status(http.StatusOK).Data(currentUserResponse).Send()
+	return response.Ctx(c).Data(currentUserResponse).Send()
 }

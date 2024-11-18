@@ -20,9 +20,9 @@ import (
 	"go-template/internal/handler"
 	"go-template/internal/handler/grpc"
 	"go-template/internal/handler/grpc/documents"
+	"go-template/internal/handler/grpc/interceptor"
 	"go-template/internal/handler/http"
 	"go-template/internal/handler/http/controller/v1"
-	"go-template/internal/handler/http/middleware"
 	"go-template/internal/router"
 	"go-template/internal/service"
 	"go-template/internal/service/auth"
@@ -40,21 +40,21 @@ func CreateApp() (*base.Application, error) {
 	handlers := http.NewHandler(userController)
 	api := router.NewApiRoute(handlers)
 	swaggerRouter := router.NewSwaggerRoute()
-	ginLoggerMiddleware := middleware.NewGinLoggerMiddleware(loggerLogger)
-	authMiddleware := middleware.NewAuthMiddleware(authService)
-	jsonResponseMiddleware := middleware.NewJSONResponseMiddleware()
-	httpMiddleware := http.NewMiddleware(ginLoggerMiddleware, authMiddleware, jsonResponseMiddleware)
-	httpServer := server.NewHTTPServer(config, api, swaggerRouter, httpMiddleware)
+	middleware := http.NewMiddleware(config, loggerLogger, authService)
+	httpServer := server.NewHTTPServer(config, api, swaggerRouter, middleware)
 	db := orm.NewGORM(config, loggerLogger)
 	query := dao.NewQuery(db)
 	documentService := documents.NewDocumentService(query)
-	grpcHandlers := grpc.NewHandler(documentService)
+	interceptorAuth := interceptor.NewAuth(authService)
+	interceptorLogger := interceptor.NewLogger(loggerLogger)
+	grpcInterceptor := grpc.NewInterceptor(interceptorAuth, interceptorLogger)
+	grpcHandlers := grpc.NewHandler(documentService, grpcInterceptor)
 	handlerHandler := handler.NewHandler(grpcHandlers, handlers)
 	serviceService := service.NewService(loggerLogger, jwksJWKS, authService)
 	redisRedis := redis.NewRedis(config)
 	batchBatch := batch.NewBatch(loggerLogger)
 	s3S3 := s3.NewS3(config)
-	application := base.NewApplication(config, httpServer, handlerHandler, loggerLogger, serviceService, httpMiddleware, redisRedis, batchBatch, s3S3, db, query)
+	application := base.NewApplication(config, httpServer, handlerHandler, loggerLogger, serviceService, middleware, redisRedis, batchBatch, s3S3, db, query)
 	return application, nil
 }
 

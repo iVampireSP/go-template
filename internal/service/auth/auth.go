@@ -2,15 +2,13 @@ package auth
 
 import (
 	"context"
+	"github.com/labstack/echo/v4"
+	"github.com/mitchellh/mapstructure"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
 	"go-template/internal/schema"
 	"go-template/internal/service/jwks"
 	"go-template/pkg/consts"
-	"strings"
-
-	"github.com/gin-gonic/gin"
-	"github.com/mitchellh/mapstructure"
 )
 
 type Service struct {
@@ -27,29 +25,6 @@ func NewAuthService(config *conf.Config, jwks *jwks.JWKS, logger *logger.Logger)
 	}
 }
 
-func (a *Service) GinMiddlewareAuth(tokenType schema.JWTTokenTypes, c *gin.Context) (*schema.User, error) {
-	if a.config.Debug.Enabled {
-		return a.parseUserJWT(tokenType, "")
-	}
-
-	authorization := c.Request.Header.Get(consts.AuthHeader)
-
-	if authorization == "" {
-		return nil, consts.ErrJWTFormatError
-	}
-
-	authSplit := strings.Split(authorization, " ")
-	if len(authSplit) != 2 {
-		return nil, consts.ErrJWTFormatError
-	}
-
-	if authSplit[0] != consts.AuthPrefix {
-		return nil, consts.ErrNotBearerType
-	}
-
-	return a.parseUserJWT(tokenType, authSplit[1])
-}
-
 func (a *Service) AuthFromToken(tokenType schema.JWTTokenTypes, token string) (*schema.User, error) {
 	if a.config.Debug.Enabled {
 		return a.parseUserJWT(tokenType, "")
@@ -62,21 +37,21 @@ func (a *Service) GetUserFromIdToken(idToken string) (*schema.User, error) {
 	return a.parseUserJWT(schema.JWTIDToken, idToken)
 }
 
-func (a *Service) GinUser(c *gin.Context) *schema.User {
-	user, _ := c.Get(consts.AuthMiddlewareKey)
-	return user.(*schema.User)
+func (a *Service) GetUserId(ctx echo.Context) (schema.UserId, error) {
+	user, ok := a.GetUser(ctx)
+
+	if !ok {
+		return "", consts.ErrUnauthorized
+	}
+
+	return user.Token.Sub, nil
 }
 
-func (a *Service) GetUserId(ctx context.Context) schema.UserId {
-	user := a.GetUser(ctx)
+func (a *Service) GetUser(ctx echo.Context) (*schema.User, bool) {
+	user := ctx.Get(consts.AuthMiddlewareKey)
 
-	return user.Token.Sub
-}
-
-func (a *Service) GetUser(ctx context.Context) *schema.User {
-	user := ctx.Value(consts.AuthMiddlewareKey)
-
-	return user.(*schema.User)
+	u, ok := user.(*schema.User)
+	return u, ok
 }
 
 func (a *Service) SetUser(ctx context.Context, user *schema.User) context.Context {

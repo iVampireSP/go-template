@@ -2,8 +2,8 @@ package grpc
 
 import (
 	"github.com/google/wire"
-	"leafdev.top/Leaf/leaf-library/internal/handler/grpc/documents"
-	"leafdev.top/Leaf/leaf-library/internal/handler/grpc/interceptor"
+	"go-template/internal/handler/grpc/documents"
+	"go-template/internal/handler/grpc/interceptor"
 )
 
 var ProviderSet = wire.NewSet(
