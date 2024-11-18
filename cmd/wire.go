@@ -7,6 +7,7 @@ import (
 	"go-template/internal/base"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
+	"go-template/internal/base/milvus"
 	"go-template/internal/base/orm"
 	"go-template/internal/base/redis"
 	"go-template/internal/base/s3"
@@ -27,6 +28,7 @@ var ProviderSet = wire.NewSet(
 	dao.NewQuery,
 	redis.NewRedis,
 	s3.NewS3,
+	milvus.NewService,
 	batch.NewBatch,
 	service.Provider,
 	handler.ProviderSet,

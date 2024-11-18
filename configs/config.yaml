@@ -1,6 +1,6 @@
 app:
   name: template
-  
+
 http:
   port: 8080
   host: 0.0.0.0
@@ -52,6 +52,14 @@ kafka:
   # Plain
   username: ""
   password: ""
+
+milvus:
+  host: 127.0.0.1
+  port: 19530
+  db_name: library
+  document_collection: documents
+  user:
+  password:
 
 third_party:
   openai_api_key: ""

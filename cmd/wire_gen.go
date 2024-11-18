@@ -11,6 +11,7 @@ import (
 	"go-template/internal/base"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
+	"go-template/internal/base/milvus"
 	"go-template/internal/base/orm"
 	"go-template/internal/base/redis"
 	"go-template/internal/base/s3"
@@ -54,10 +55,11 @@ func CreateApp() (*base.Application, error) {
 	redisRedis := redis.NewRedis(config)
 	batchBatch := batch.NewBatch(loggerLogger)
 	s3S3 := s3.NewS3(config)
-	application := base.NewApplication(config, httpServer, handlerHandler, loggerLogger, serviceService, middleware, redisRedis, batchBatch, s3S3, db, query)
+	client := milvus.NewService(config, loggerLogger)
+	application := base.NewApplication(config, httpServer, handlerHandler, loggerLogger, serviceService, middleware, redisRedis, batchBatch, s3S3, db, query, client)
 	return application, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, batch.NewBatch, service.Provider, handler.ProviderSet, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)
+var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, milvus.NewService, batch.NewBatch, service.Provider, handler.ProviderSet, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)

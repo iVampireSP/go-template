@@ -22,6 +22,8 @@ type Config struct {
 
 	Kafka *Kafka `yaml:"kafka"`
 
+	Milvus *Milvus `yaml:"milvus"`
+
 	ThirdParty *ThirdParty `yaml:"third_party" mapstructure:"third_party"`
 }
 
@@ -79,14 +81,22 @@ type S3 struct {
 }
 
 type Kafka struct {
-	BootstrapServers KafkaBootstrapServers `yaml:"bootstrap_servers" mapstructure:"bootstrap_servers"`
-	Topic            string                `yaml:"topic" mapstructure:"topic"`
-	GroupId          string                `yaml:"group_id" mapstructure:"group_id"`
-	Username         string                `yaml:"username" mapstructure:"username"`
-	Password         string                `yaml:"password" mapstructure:"password"`
+	BootstrapServers []string `yaml:"bootstrap_servers" mapstructure:"bootstrap_servers"`
+	GroupId          string   `yaml:"group_id" mapstructure:"group_id"`
+	Username         string   `yaml:"username" mapstructure:"username"`
+	Password         string   `yaml:"password" mapstructure:"password"`
+	MainTopic        string   `yaml:"main_topic" mapstructure:"main_topic"`
+	WorkerTopic      string   `yaml:"worker_topic" mapstructure:"worker_topic"`
 }
 
-type KafkaBootstrapServers []string
+type Milvus struct {
+	Host               string `yaml:"host" mapstructure:"host"`
+	Port               int    `yaml:"port" mapstructure:"port"`
+	DBName             string `yaml:"db_name" mapstructure:"db_name"`
+	DocumentCollection string `yaml:"document_collection" mapstructure:"document_collection"`
+	User               string `yaml:"user" mapstructure:"user"`
+	Password           string `yaml:"password" mapstructure:"password"`
+}
 
 type Grpc struct {
 	Address string `yaml:"address" mapstructure:"address"`

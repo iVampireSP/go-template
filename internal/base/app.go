@@ -1,6 +1,7 @@
 package base
 
 import (
+	"github.com/milvus-io/milvus-sdk-go/v2/client"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
 	"go-template/internal/base/redis"
@@ -26,6 +27,7 @@ type Application struct {
 	Redis      *redis.Redis
 	Batch      *batch.Batch
 	S3         *s3.S3
+	Milvus     client.Client
 }
 
 func NewApplication(
@@ -37,9 +39,10 @@ func NewApplication(
 	middleware *http.Middleware,
 	redis *redis.Redis,
 	batch *batch.Batch,
-	S3 *s3.S3,
-	GORM *gorm.DB,
-	DAO *dao.Query,
+	s3 *s3.S3,
+	gorm *gorm.DB,
+	dao *dao.Query,
+	milvus client.Client,
 ) *Application {
 	return &Application{
 		Config:     config,
@@ -50,8 +53,9 @@ func NewApplication(
 		Middleware: middleware,
 		Redis:      redis,
 		Batch:      batch,
-		S3:         S3,
-		GORM:       GORM,
-		DAO:        DAO,
+		S3:         s3,
+		GORM:       gorm,
+		DAO:        dao,
+		Milvus:     milvus,
 	}
 }
