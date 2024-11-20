@@ -45,7 +45,7 @@ func NewHTTPServer(
 func (hs *HttpServer) AllowAllCors() {
 	var defaultCORSConfig = echoMiddleware.CORSConfig{
 		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Cookie", "X-Requested-With", "X-Auth-Token", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "X-Requested-With", "X-Auth-Token", "Authorization"},
 		AllowCredentials: true,
 		AllowMethods:     []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
 		MaxAge:           12 * 60,
