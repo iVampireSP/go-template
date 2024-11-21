@@ -10,19 +10,16 @@ import (
 	"moul.io/zapgorm2"
 )
 
-//
-//func ProviderOrm() *Orm {
-//	return NewOrm()
-//}
-
 func NewGORM(
 	config *conf.Config,
 	logger *logger.Logger,
 ) *gorm.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.Database.User, config.Database.Password, config.Database.Host, config.Database.Port, config.Database.Name)
 
+	var d = mysql.Open(dsn)
+
 	if config.Debug.Enabled {
-		db, err := gorm.Open(mysql.Open(dsn))
+		db, err := gorm.Open(d)
 
 		if err != nil {
 			panic(err)
@@ -33,7 +30,7 @@ func NewGORM(
 
 	zapGormLogger := zapgorm2.New(logger.Logger)
 	zapGormLogger.SetAsDefault()
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(d, &gorm.Config{
 		Logger: zapGormLogger,
 	})
 
