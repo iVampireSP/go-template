@@ -28,7 +28,8 @@ type Config struct {
 }
 
 type App struct {
-	Name string `yaml:"name"`
+	Name             string   `yaml:"name"`
+	AllowedAudiences []string `yaml:"allowed_audiences" mapstructure:"allowed_audiences"`
 }
 
 type ThirdParty struct {

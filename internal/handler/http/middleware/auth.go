@@ -8,6 +8,7 @@ import (
 	"go-template/internal/service/auth"
 	"go-template/pkg/consts"
 	"net/http"
+	"slices"
 	"strings"
 )
 
@@ -16,25 +17,16 @@ type AuthMiddleware struct {
 	authService *auth.Service
 }
 
+var audienceLength int
+
 func NewAuthMiddleware(config *conf.Config, authService *auth.Service) *AuthMiddleware {
+	audienceLength = len(config.App.AllowedAudiences)
+
 	return &AuthMiddleware{
 		config,
 		authService,
 	}
 }
-
-//
-//func (a *AuthMiddleware) RequireJWTIDToken(c echo.Context) (bool, error) {
-//	user, err := a.authService.MiddlewareAuth(schema.JWTIDToken, c)
-//
-//	if err != nil {
-//		return false, schema.NewResponse(c).Error(err).Status(http.StatusUnauthorized).Send()
-//	}
-//
-//	c.Set(consts.AuthMiddlewareKey, user)
-//
-//	return true, nil
-//}
 
 func (a *AuthMiddleware) Handler() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -77,6 +69,13 @@ func (a *AuthMiddleware) Handler() echo.MiddlewareFunc {
 
 			if token == nil {
 				return r.Error(err).Status(http.StatusUnauthorized).Send()
+			}
+
+			if audienceLength > 0 {
+				// 检测 aud
+				if !slices.Contains(a.config.App.AllowedAudiences, token.Token.Aud) {
+					return r.Error(consts.ErrNotValidToken).Send()
+				}
 			}
 
 			c.Set(consts.AuthMiddlewareKey, token)

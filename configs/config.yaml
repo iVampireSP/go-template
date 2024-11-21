@@ -1,5 +1,7 @@
 app:
   name: template
+  allowed_audiences:
+    - "1" # UserLand Personal Access Client
 
 http:
   port: 8080
