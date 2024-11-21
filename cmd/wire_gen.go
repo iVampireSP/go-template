@@ -28,6 +28,7 @@ import (
 	"go-template/internal/service"
 	"go-template/internal/service/auth"
 	"go-template/internal/service/jwks"
+	"go-template/internal/service/stream"
 )
 
 // Injectors from wire.go:
@@ -51,7 +52,8 @@ func CreateApp() (*base.Application, error) {
 	grpcInterceptor := grpc.NewInterceptor(interceptorAuth, interceptorLogger)
 	grpcHandlers := grpc.NewHandler(documentService, grpcInterceptor)
 	handlerHandler := handler.NewHandler(grpcHandlers, handlers)
-	serviceService := service.NewService(loggerLogger, jwksJWKS, authService)
+	streamService := stream.NewService(config)
+	serviceService := service.NewService(loggerLogger, jwksJWKS, authService, streamService)
 	redisRedis := redis.NewRedis(config)
 	batchBatch := batch.NewBatch(loggerLogger)
 	s3S3 := s3.NewS3(config)
