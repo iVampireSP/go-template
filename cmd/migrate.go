@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"go-template/internal/migrations"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -57,14 +56,14 @@ func RunMigrate(args []string) {
 
 	goose.SetBaseFS(migrations.MigrationFS)
 
-	err = goose.SetDialect("mysql")
+	err = goose.SetDialect("postgres")
 	if err != nil {
-		return
+		panic(err)
 	}
 
 	db, err := app.GORM.DB()
 	if err != nil {
-		log.Fatalf("goose: %v\n", err)
+		panic(err)
 	}
 
 	command := args[0]
@@ -77,12 +76,12 @@ func RunMigrate(args []string) {
 	err = goose.RunContext(context.Background(), command, db, ".", arguments...)
 
 	if err != nil {
-		log.Fatalf("goose: %v\n", err)
+		panic(err)
 	}
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			log.Fatalf("goose: failed to close DB: %v\n", err)
+			panic(err)
 		}
 	}()
 }
@@ -152,7 +151,7 @@ func Down<FuncName>(ctx context.Context, tx *sql.Tx) error {
 	template = strings.ReplaceAll(template, "<FuncName>", funcName+name)
 	err := os.WriteFile("internal/migrations/"+fileName, []byte(template), 0644)
 	if err != nil {
-		log.Fatalf("failed creating migration file: %v", err)
+		panic(fmt.Sprintf("failed creating migration file: %v", err))
 	}
 
 }

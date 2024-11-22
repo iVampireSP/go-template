@@ -21,6 +21,8 @@ database:
   user: root
   password: root
   name: db_name
+  sslmode: disable
+  timezone: "Asia/Shanghai"
 
 redis:
   host: 127.0.0.1

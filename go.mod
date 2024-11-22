@@ -24,7 +24,7 @@ require (
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2
-	gorm.io/driver/mysql v1.5.7
+	gorm.io/driver/postgres v1.5.10
 	gorm.io/gen v0.3.26
 	gorm.io/gorm v1.25.12
 	gorm.io/plugin/dbresolver v1.5.3
@@ -59,6 +59,10 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/pgx/v5 v5.7.1 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -115,5 +119,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.4 // indirect
+	gorm.io/driver/mysql v1.5.7 // indirect
 	gorm.io/hints v1.1.2 // indirect
 )
