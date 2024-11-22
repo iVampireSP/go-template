@@ -53,14 +53,11 @@ func RunMigrate(args []string) {
 		panic(err)
 	}
 
-	// setup config
 	migrations.Config = app.Config
 
-	// dic
 	goose.SetBaseFS(migrations.MigrationFS)
 
-	// dialect tidb
-	err = goose.SetDialect("tidb")
+	err = goose.SetDialect("mysql")
 	if err != nil {
 		return
 	}
@@ -88,7 +85,6 @@ func RunMigrate(args []string) {
 			log.Fatalf("goose: failed to close DB: %v\n", err)
 		}
 	}()
-
 }
 
 func createGooseMigration(name string) {
