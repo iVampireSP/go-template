@@ -41,9 +41,9 @@ func (j *JWKS) RefreshJWKS() {
 	Jwks, err = keyfunc.NewDefault([]string{j.url})
 	if err != nil {
 		j.logger.Logger.Error("Failed to create JWK Set from resource at the given URL.\nError: " + err.Error())
+	} else {
+		j.logger.Logger.Info("JWKS refreshed.")
 	}
-
-	j.logger.Logger.Info("JWKS refreshed.")
 }
 
 func (j *JWKS) ParseJWT(jwtB64 string) (*jwt.Token, error) {
