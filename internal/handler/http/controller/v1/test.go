@@ -24,8 +24,8 @@ func NewUserController(authService *auth.Service) *UserController {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @deprecated   true
-// @Success      200  {object}  schema.ResponseBody{data=schema.CurrentUserResponse}
-// @Failure      400  {object}  schema.ResponseBody
+// @Success      200  {object}  response.Body{data=schema.CurrentUserResponse}
+// @Failure      400  {object}  response.Body
 // @Router       /api/v1/ping [get]
 func (u *UserController) Test(c echo.Context) error {
 	user, ok := u.authService.GetUser(c)

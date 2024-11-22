@@ -40,7 +40,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/schema.ResponseBody"
+                                    "$ref": "#/definitions/response.Body"
                                 },
                                 {
                                     "type": "object",
@@ -56,7 +56,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ResponseBody"
+                            "$ref": "#/definitions/response.Body"
                         }
                     }
                 }
@@ -64,6 +64,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "response.Body": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "schema.CurrentUserResponse": {
             "type": "object",
             "properties": {
@@ -80,21 +95,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "schema.ResponseBody": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "error": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "success": {
                     "type": "boolean"
                 }
             }

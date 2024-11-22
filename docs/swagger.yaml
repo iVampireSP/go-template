@@ -1,4 +1,14 @@
 definitions:
+  response.Body:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   schema.CurrentUserResponse:
     properties:
       ip:
@@ -10,16 +20,6 @@ definitions:
       userName:
         type: string
       valid:
-        type: boolean
-    type: object
-  schema.ResponseBody:
-    properties:
-      data: {}
-      error:
-        type: string
-      message:
-        type: string
-      success:
         type: boolean
     type: object
 info:
@@ -40,7 +40,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/schema.ResponseBody'
+            - $ref: '#/definitions/response.Body'
             - properties:
                 data:
                   $ref: '#/definitions/schema.CurrentUserResponse'
@@ -48,7 +48,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ResponseBody'
+            $ref: '#/definitions/response.Body'
       security:
       - ApiKeyAuth: []
       summary: Greet
