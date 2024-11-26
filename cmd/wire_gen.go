@@ -34,8 +34,8 @@ import (
 // Injectors from wire.go:
 
 func CreateApp() (*base.Application, error) {
-	loggerLogger := logger.NewZapLogger()
-	config := conf.ProviderConfig(loggerLogger)
+	config := conf.ProviderConfig()
+	loggerLogger := logger.NewZapLogger(config)
 	jwksJWKS := jwks.NewJWKS(config, loggerLogger)
 	authService := auth.NewAuthService(config, jwksJWKS, loggerLogger)
 	userController := v1.NewUserController(authService)
@@ -47,7 +47,7 @@ func CreateApp() (*base.Application, error) {
 	db := orm.NewGORM(config, loggerLogger)
 	query := dao.NewQuery(db)
 	documentService := documents.NewDocumentService(query)
-	interceptorAuth := interceptor.NewAuth(authService)
+	interceptorAuth := interceptor.NewAuth(authService, loggerLogger, config)
 	interceptorLogger := interceptor.NewLogger(loggerLogger)
 	grpcInterceptor := grpc.NewInterceptor(interceptorAuth, interceptorLogger)
 	grpcHandlers := grpc.NewHandler(documentService, grpcInterceptor)
