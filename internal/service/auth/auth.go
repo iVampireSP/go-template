@@ -54,6 +54,15 @@ func (a *Service) GetUser(ctx echo.Context) (*schema.User, bool) {
 	return u, ok
 }
 
+func (a *Service) GetCtx(ctx context.Context) (*schema.User, bool) {
+	user := ctx.Value(consts.AuthMiddlewareKey)
+
+	u, ok := user.(*schema.User)
+
+	u.Id = u.Token.Sub
+	return u, ok
+}
+
 func (a *Service) SetUser(ctx context.Context, user *schema.User) context.Context {
 	context.WithValue(ctx, consts.AuthMiddlewareKey, user)
 	return context.WithValue(ctx, consts.AuthMiddlewareKey, user)

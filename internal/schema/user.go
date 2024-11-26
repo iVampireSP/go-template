@@ -26,6 +26,7 @@ type UserTokenInfo struct {
 
 type User struct {
 	Token UserTokenInfo
+	Id    UserId
 	Valid bool
 }
 
