@@ -11,6 +11,8 @@ http:
 
 grpc:
   address: 0.0.0.0:9090
+  address_gateway: 0.0.0.0:9091
+
 
 debug:
   enabled: false

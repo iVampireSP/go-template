@@ -102,5 +102,6 @@ type Milvus struct {
 }
 
 type Grpc struct {
-	Address string `yaml:"address" mapstructure:"address"`
+	Address        string `yaml:"address" mapstructure:"address"`
+	AddressGateway string `yaml:"address_gateway" mapstructure:"address_gateway"`
 }

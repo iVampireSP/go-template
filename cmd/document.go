@@ -1,12 +1,17 @@
 package cmd
 
 import (
+	"context"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/spf13/cobra"
 	"go-template/pkg/protos/documentService"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 	"net"
+	"net/http"
+	"sync"
 )
 
 func init() {
@@ -14,7 +19,7 @@ func init() {
 }
 
 var documentServiceCommand = &cobra.Command{
-	Use:   "document",
+	Use:   "grpc",
 	Short: "Start document service",
 	Run: func(cmd *cobra.Command, args []string) {
 		app, err := CreateApp()
@@ -45,10 +50,40 @@ var documentServiceCommand = &cobra.Command{
 		documentService.RegisterDocumentServiceServer(grpcServer, app.Handler.GRPC.DocumentService)
 		reflection.Register(grpcServer)
 
-		app.Logger.Sugar.Info("Document Service listing on " + app.Config.Grpc.Address)
+		app.Logger.Sugar.Infof("Document Service listening on %s, http gateway listening on %s",
+			app.Config.Grpc.Address, app.Config.Grpc.AddressGateway)
 
-		if err := grpcServer.Serve(lis); err != nil {
-			app.Logger.Sugar.Fatal(err)
-		}
+		var wg sync.WaitGroup
+
+		wg.Add(1)
+		go func() {
+			if err := grpcServer.Serve(lis); err != nil {
+				app.Logger.Sugar.Fatal(err)
+			}
+		}()
+
+		wg.Add(1)
+		go func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			mux := runtime.NewServeMux()
+			err := documentService.RegisterDocumentServiceHandlerFromEndpoint(ctx, mux, app.Config.Grpc.Address,
+				[]grpc.DialOption{
+					grpc.WithTransportCredentials(insecure.NewCredentials()),
+				})
+
+			if err != nil {
+				app.Logger.Sugar.Fatal(err)
+			}
+
+			if err := http.ListenAndServe(app.Config.Grpc.AddressGateway, mux); err != nil {
+				app.Logger.Sugar.Fatal(err)
+			}
+
+		}()
+
+		wg.Wait()
+
 	},
 }
