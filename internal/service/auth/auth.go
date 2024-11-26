@@ -64,7 +64,6 @@ func (a *Service) GetCtx(ctx context.Context) (*schema.User, bool) {
 }
 
 func (a *Service) SetUser(ctx context.Context, user *schema.User) context.Context {
-	context.WithValue(ctx, consts.AuthMiddlewareKey, user)
 	return context.WithValue(ctx, consts.AuthMiddlewareKey, user)
 }
 
