@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/spf13/cobra"
 	"go-template/pkg/protos/documentService"
@@ -34,11 +33,11 @@ var documentServiceCommand = &cobra.Command{
 			grpc.ChainUnaryInterceptor(
 				logging.UnaryServerInterceptor(app.Handler.GRPC.Interceptor.Logger.ZapLogInterceptor()),
 
-				auth.UnaryServerInterceptor(app.Handler.GRPC.Interceptor.Auth.JwtAuth),
+				app.Handler.GRPC.Interceptor.Auth.UnaryJWTAuth(),
 			),
 			grpc.ChainStreamInterceptor(
 				logging.StreamServerInterceptor(app.Handler.GRPC.Interceptor.Logger.ZapLogInterceptor()),
-				auth.StreamServerInterceptor(app.Handler.GRPC.Interceptor.Auth.JwtAuth),
+				app.Handler.GRPC.Interceptor.Auth.StreamJWTAuth(),
 			),
 		}
 		grpcServer := grpc.NewServer(opts...)
