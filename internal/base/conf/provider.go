@@ -1,7 +1,6 @@
 package conf
 
 import (
-	"go-template/internal/base/logger"
 	"os"
 	"path/filepath"
 	"strings"
@@ -46,14 +45,14 @@ func getConfigPath() string {
 	return path
 }
 
-func ProviderConfig(logger *logger.Logger) *Config {
+func ProviderConfig() *Config {
 	var path = getConfigPath()
 	createConfigIfNotExists(path)
 
 	if path == "" {
-		logger.Sugar.Fatal("config file not found, created.")
+		panic("config file not found, created on app root.")
 	} else {
-		logger.Sugar.Infof("config file found at %s", path)
+		println("config file found:", path)
 	}
 
 	c := &Config{}
@@ -61,7 +60,7 @@ func ProviderConfig(logger *logger.Logger) *Config {
 	v.SetConfigType("yaml")
 	v.SetConfigFile(path)
 	if err := v.ReadInConfig(); err != nil {
-		logger.Sugar.Fatal(err)
+		panic(err)
 	}
 	if err := v.Unmarshal(c); err != nil {
 		panic(err)

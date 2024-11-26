@@ -1,14 +1,25 @@
 package logger
 
-import "go.uber.org/zap"
+import (
+	"go-template/internal/base/conf"
+	"go.uber.org/zap"
+)
 
 type Logger struct {
 	Sugar  *zap.SugaredLogger
 	Logger *zap.Logger
 }
 
-func NewZapLogger() *Logger {
-	logger, err := zap.NewProduction()
+func NewZapLogger(config *conf.Config) *Logger {
+	var logger *zap.Logger
+	var err error
+
+	if config.Debug.Enabled {
+		logger, err = zap.NewDevelopment(zap.AddCallerSkip(1))
+	} else {
+		logger, err = zap.NewProduction()
+	}
+
 	if err != nil {
 		panic(err)
 		return nil
