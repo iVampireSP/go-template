@@ -1,4 +1,4 @@
-.PHONY: install-deps generate swag gorm proto
+.PHONY: install-deps generate swag gorm proto buf
 
 install-deps:
 	go install github.com/google/wire/cmd/wire@latest
@@ -14,6 +14,9 @@ swag:
 
 gorm:
 	cd hack/gorm-gen && go run .
+
+buf:
+	buf dep update
 
 proto:
 	buf generate
