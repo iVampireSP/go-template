@@ -43,9 +43,9 @@ func (a *Auth) notRequireAuth(fullMethodName string) bool {
 
 	if a.config.Debug.Enabled {
 		if b {
-			a.logger.Sugar.Debug("[GRPC Auth] Ignore auth for Method: %s", fullMethodName)
+			a.logger.Sugar.Debugf("[GRPC Auth] Ignore auth for Method: %s", fullMethodName)
 		} else {
-			a.logger.Sugar.Debug("[GRPC Auth] Require auth for Method: %s", fullMethodName)
+			a.logger.Sugar.Debugf("[GRPC Auth] Require auth for Method: %s", fullMethodName)
 		}
 	}
 
