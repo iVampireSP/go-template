@@ -5,7 +5,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/spf13/cobra"
-	"go-template/pkg/protos/documentService"
+	v1 "go-template/proto/gen/proto/api/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -20,15 +20,13 @@ func init() {
 
 var documentServiceCommand = &cobra.Command{
 	Use:   "grpc",
-	Short: "Start document service",
+	Short: "Start gRPC",
 	Run: func(cmd *cobra.Command, args []string) {
 		app, err := CreateApp()
 		if err != nil {
 			panic(err)
 			return
 		}
-
-		app.Logger.Sugar.Info("Start document service")
 
 		lis, err := net.Listen("tcp", app.Config.Grpc.Address)
 		if err != nil {
@@ -47,10 +45,13 @@ var documentServiceCommand = &cobra.Command{
 		}
 		grpcServer := grpc.NewServer(opts...)
 
-		documentService.RegisterDocumentServiceServer(grpcServer, app.Handler.GRPC.DocumentService)
+		// 注册服务
+		v1.RegisterDocumentServiceServer(grpcServer, app.Handler.GRPC.DocumentApi)
+
+		// 反射
 		reflection.Register(grpcServer)
 
-		app.Logger.Sugar.Infof("Document Service listening on %s, http gateway listening on %s",
+		app.Logger.Sugar.Infof("gRPC listening on %s, http gateway listening on %s",
 			app.Config.Grpc.Address, app.Config.Grpc.AddressGateway)
 
 		var wg sync.WaitGroup
@@ -67,11 +68,16 @@ var documentServiceCommand = &cobra.Command{
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
+			var dialOption = []grpc.DialOption{
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+			}
+
 			mux := runtime.NewServeMux()
-			err := documentService.RegisterDocumentServiceHandlerFromEndpoint(ctx, mux, app.Config.Grpc.Address,
-				[]grpc.DialOption{
-					grpc.WithTransportCredentials(insecure.NewCredentials()),
-				})
+
+			var err error
+
+			// 注册服务到网关
+			err = v1.RegisterDocumentServiceHandlerFromEndpoint(ctx, mux, app.Config.Grpc.Address, dialOption)
 
 			if err != nil {
 				app.Logger.Sugar.Fatal(err)

@@ -9,25 +9,25 @@ import (
 var ProviderSet = wire.NewSet(
 	interceptor.NewAuth,
 	interceptor.NewLogger,
-	documents.NewDocumentService,
+	documents.NewApi,
 
 	NewInterceptor,
 	NewHandler,
 )
 
 func NewHandler(
-	documentService *documents.DocumentService,
+	documentApi *documents.Api,
 	interceptor2 *Interceptor,
 ) *Handlers {
 	return &Handlers{
-		DocumentService: documentService,
-		Interceptor:     interceptor2,
+		DocumentApi: documentApi,
+		Interceptor: interceptor2,
 	}
 }
 
 type Handlers struct {
-	DocumentService *documents.DocumentService
-	Interceptor     *Interceptor
+	DocumentApi *documents.Api
+	Interceptor *Interceptor
 }
 
 type Interceptor struct {
@@ -43,5 +43,4 @@ func NewInterceptor(
 		Auth:   Auth,
 		Logger: Logger,
 	}
-
 }

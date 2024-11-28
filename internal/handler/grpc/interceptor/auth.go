@@ -47,15 +47,25 @@ func (a *Auth) notRequireAuth(fullMethodName string) bool {
 		} else {
 			a.logger.Sugar.Debugf("[GRPC Auth] Require auth for Method: %s", fullMethodName)
 		}
+
 	}
 
 	return b
 }
 
 func (a *Auth) authCtx(ctx context.Context) (context.Context, error) {
-	tokenString, err := auth.AuthFromMD(ctx, "bearer")
+	var tokenString string
+	var err error
+
+	tokenString, err = auth.AuthFromMD(ctx, "bearer")
 	if err != nil {
-		return nil, err
+		// 如果是调试模式，就不处理报错，并且继续执行
+		if a.config.Debug.Enabled {
+			tokenString = ""
+			a.logger.Sugar.Debugf("[GRPC Auth] error, %s", err)
+		} else {
+			return nil, err
+		}
 	}
 
 	token, err := a.authService.AuthFromToken(schema.JWTIDToken, tokenString)

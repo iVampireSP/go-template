@@ -2,10 +2,9 @@ package documents
 
 import (
 	"context"
-	"go-template/pkg/protos/documentService"
+	v1 "go-template/proto/gen/proto/api/v1"
 )
 
-func (d *DocumentService) ListDocuments(ctx context.Context, req *documentService.ListDocumentsRequest) (*documentService.ListDocumentsResponse, error) {
-
-	return &documentService.ListDocumentsResponse{}, nil
+func (d *Api) ListDocuments(ctx context.Context, req *v1.ListDocumentsRequest) (*v1.ListDocumentsResponse, error) {
+	return &v1.ListDocumentsResponse{}, nil
 }

@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "pkg/protos/document/service.proto",
+    "title": "proto/api/v1/document_service.proto",
     "version": "version not set"
   },
   "tags": [
@@ -17,8 +17,13 @@
   ],
   "paths": {},
   "definitions": {
-    "ListDocumentsResponse": {
-      "type": "object"
+    "documentListDocumentsResponse": {
+      "type": "object",
+      "properties": {
+        "Message": {
+          "type": "string"
+        }
+      }
     },
     "protobufAny": {
       "type": "object",
