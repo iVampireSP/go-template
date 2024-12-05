@@ -37,7 +37,9 @@ func (a *Api) V1(r fiber.Router) {
 		auth.Use(a.Middleware.Auth.Handler())
 
 		// RoutePermission 为权限验证
-		r.Get("/ping", a.Middleware.RBAC.RoutePermission(), a.HttpHandler.User.Test)
+		//auth.Get("/ping", a.Middleware.RBAC.RoutePermission(), a.HttpHandler.User.Test)
+
+		auth.Get("/ping", a.HttpHandler.User.Test)
 	}
 
 	guest := r.Group("/api/v1")

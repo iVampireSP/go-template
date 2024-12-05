@@ -3,10 +3,10 @@ package middleware
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"go-template/internal/api/http/response"
 	"go-template/internal/base/conf"
 	"go-template/internal/services/auth"
-	userPkg "go-template/internal/types/auth"
+	"go-template/internal/types/dto"
+	userPkg "go-template/internal/types/user"
 	"net/http"
 	"strings"
 )
@@ -20,11 +20,11 @@ func (m *RBAC) RoutePermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		user, ok := m.authService.GetUserSafe(c)
 		if !ok {
-			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
+			return dto.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
 
 		if !user.Valid {
-			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
+			return dto.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
 
 		var path = cleanPath(c.Path())
@@ -34,7 +34,7 @@ func (m *RBAC) RoutePermission() fiber.Handler {
 		pass := user.HasPermissions(permissionName)
 
 		if !pass {
-			return response.Ctx(c).
+			return dto.Ctx(c).
 				Message(fmt.Sprintf("permission denied, permission name: %s", permissionName)).
 				Error(nil).
 				Status(http.StatusForbidden).
@@ -49,11 +49,11 @@ func (m *RBAC) RequirePermissions(permissions ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		user, ok := m.authService.GetUserSafe(c)
 		if !ok {
-			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
+			return dto.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
 
 		if !user.Valid {
-			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
+			return dto.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
 
 		var pass = true
@@ -71,7 +71,7 @@ func (m *RBAC) RequirePermissions(permissions ...string) fiber.Handler {
 		}
 
 		if !pass {
-			return response.Ctx(c).
+			return dto.Ctx(c).
 				Message(fmt.Sprintf("permission denied, required permissions: %s, failed permission: %s",
 					permissions, failedPermissionName)).
 				Error(nil).
@@ -87,11 +87,11 @@ func (m *RBAC) RequireRoles(roles ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		user, ok := m.authService.GetUserSafe(c)
 		if !ok {
-			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
+			return dto.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
 
 		if !user.Valid {
-			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
+			return dto.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
 
 		var pass = true
@@ -109,7 +109,7 @@ func (m *RBAC) RequireRoles(roles ...string) fiber.Handler {
 		}
 
 		if !pass {
-			return response.Ctx(c).
+			return dto.Ctx(c).
 				Message(fmt.Sprintf("permission denied, required roles: %s, failed role %s", roles, failedRoleName)).
 				Error(nil).
 				Status(http.StatusForbidden).

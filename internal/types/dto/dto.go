@@ -1,16 +1,26 @@
-package response
+package dto
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"net/http"
 )
 
+type IError interface {
+	Error() string
+}
+
+type ValidateError struct {
+	Message string `json:"message"`
+}
+
+// Body 为 HTTP 响应
 type Body struct {
 	Message string `json:"message"`
 	Error   string `json:"error"`
-	Success bool   `json:"success"`
-	Data    any    `json:"data,omitempty"`
-	Wrap    bool   `json:"-"`
+	//ValidationErrors *[]ValidateError `json:"validation_error,omitempty"`
+	Success bool `json:"success"`
+	Data    any  `json:"data,omitempty"`
+	Wrap    bool `json:"-"`
 }
 
 type HttpResponse struct {
@@ -57,15 +67,9 @@ func (r *HttpResponse) Data(data any) *HttpResponse {
 
 }
 
-func (r *HttpResponse) Error(err error) *HttpResponse {
+func (r *HttpResponse) Error(err IError) *HttpResponse {
 	if err != nil {
-		var errMsg = err.Error()
-
-		if errMsg == "EOF" {
-			errMsg = "Request body is empty or missing some fields, make sure you have provided all the required fields"
-		}
-
-		r.body.Error = errMsg
+		r.body.Error = err.Error()
 
 		if r.httpStatus == 0 {
 			r.httpStatus = http.StatusBadRequest
@@ -109,6 +113,17 @@ func (r *HttpResponse) Send() error {
 
 	return r.ctx.Status(r.httpStatus).JSON(r.body.Data)
 }
+
+//func (r *HttpResponse) ValidationError(validationErrors *[]ValidateError) *HttpResponse {
+//	if validationErrors == nil || len(*validationErrors) == 0 {
+//	}
+//
+//	r.body.ValidationErrors = validationErrors
+//
+//	r.Error(errs.ErrBadRequest)
+//
+//	return r
+//}
 
 //
 //func ResponseMessage(c *gin.Context, code int, message string, data interface{}) {

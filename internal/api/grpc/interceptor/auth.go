@@ -2,13 +2,14 @@ package interceptor
 
 import (
 	"context"
-	authInterceptor "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
 	authService "go-template/internal/services/auth"
-	"go-template/internal/types/auth"
 	"go-template/internal/types/constants"
+	"go-template/internal/types/errs"
+
+	authInterceptor "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
 )
 
@@ -68,13 +69,13 @@ func (a *Auth) authCtx(ctx context.Context) (context.Context, error) {
 		}
 	}
 
-	token, err := a.authService.AuthFromToken(auth.JWTIDToken, tokenString)
+	token, err := a.authService.AuthFromToken(constants.JwtTokenTypeIDToken, tokenString)
 	if err != nil {
 		return nil, err
 	}
 
 	if !token.Valid {
-		return nil, constants.ErrNotValidToken
+		return nil, errs.NotValidToken
 	}
 
 	ctx = logging.InjectFields(ctx, logging.Fields{constants.AuthMiddlewareKey, token.Token.Sub})
@@ -133,7 +134,7 @@ func (a *Auth) StreamJWTAuth() grpc.StreamServerInterceptor {
 //		return nil, err
 //	}
 //
-//	token, err := a.authService.AuthFromToken(schema.JWTIDToken, tokenString)
+//	token, err := a.authService.AuthFromToken(constants.JwtTokenTypeIDToken, tokenString)
 //	if err != nil {
 //		return nil, err
 //	}

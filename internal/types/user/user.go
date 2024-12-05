@@ -1,9 +1,12 @@
-package auth
+package user
 
 import (
 	"slices"
 	"time"
 )
+
+// AnonymousUser 调试模式下的用户
+const AnonymousUser Id = "anonymous"
 
 type Token struct {
 	Aud              string       `json:"aud"`

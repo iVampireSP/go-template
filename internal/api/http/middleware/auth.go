@@ -1,15 +1,17 @@
 package middleware
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"go-template/internal/api/http/response"
 	"go-template/internal/base/conf"
 	authService "go-template/internal/services/auth"
-	authType "go-template/internal/types/auth"
 	"go-template/internal/types/constants"
+	"go-template/internal/types/dto"
+	"go-template/internal/types/errs"
+	authType "go-template/internal/types/user"
 	"net/http"
 	"slices"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Auth struct {
@@ -30,12 +32,12 @@ func NewAuth(config *conf.Config, authService *authService.Service) *Auth {
 
 func (a *Auth) Handler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var r = response.Ctx(c)
+		var r = dto.Ctx(c)
 		var err error
 		var token = new(authType.User)
 
 		if a.config.Debug.Enabled {
-			token, err = a.authService.AuthFromToken(authType.JWTAccessToken, "")
+			token, err = a.authService.AuthFromToken(constants.JwtTokenTypeAccessToken, "")
 			if err != nil {
 				return r.Error(err).Send()
 			}
@@ -48,19 +50,19 @@ func (a *Auth) Handler() fiber.Handler {
 		authorization := c.Get(constants.AuthHeader)
 
 		if authorization == "" {
-			return r.Error(constants.ErrJWTFormatError).Send()
+			return r.Error(errs.JWTFormatError).Send()
 		}
 
 		authSplit := strings.Split(authorization, " ")
 		if len(authSplit) != 2 {
-			return r.Error(constants.ErrJWTFormatError).Send()
+			return r.Error(errs.JWTFormatError).Send()
 		}
 
 		if authSplit[0] != constants.AuthPrefix {
-			return r.Error(constants.ErrNotBearerType).Send()
+			return r.Error(errs.NotBearerType).Send()
 		}
 
-		token, err = a.authService.AuthFromToken(authType.JWTIDToken, authSplit[1])
+		token, err = a.authService.AuthFromToken(constants.JwtTokenTypeIDToken, authSplit[1])
 
 		if err != nil {
 			return r.Error(err).Status(http.StatusUnauthorized).Send()
@@ -73,7 +75,7 @@ func (a *Auth) Handler() fiber.Handler {
 		if audienceLength > 0 {
 			// 检测 aud
 			if !slices.Contains(a.config.App.AllowedAudiences, token.Token.Aud) {
-				return r.Error(constants.ErrNotValidToken).Send()
+				return r.Error(errs.NotValidToken).Send()
 			}
 		}
 

@@ -7,12 +7,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	httpApi "go-template/internal/api/http"
-	"go-template/internal/api/http/response"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
 	"go-template/internal/router"
 	"go-template/internal/services/auth"
-	"go-template/internal/types/constants"
+	"go-template/internal/types/dto"
+	"go-template/internal/types/errs"
 	"net/http"
 	"strings"
 )
@@ -38,8 +38,7 @@ func NewHTTPServer(
 		JSONEncoder: sonic.Marshal,
 		JSONDecoder: sonic.Unmarshal,
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
-			logger.Sugar.Errorf("fiber error: %s", err)
-			return response.Ctx(ctx).Status(fiber.StatusInternalServerError).Error(constants.ErrInternalServerError).Send()
+			return errorConverter(logger, ctx, err)
 		},
 	})
 	app.Use(recover.New())
@@ -83,7 +82,7 @@ func (hs *HttpServer) BizRouter() *fiber.App {
 
 	// 404 Route
 	hs.Fiber.Use(func(ctx *fiber.Ctx) error {
-		return response.Ctx(ctx).Status(fiber.StatusNotFound).Send()
+		return dto.Ctx(ctx).Status(fiber.StatusNotFound).Error(errs.RouteNotFound).Send()
 	})
 
 	return hs.Fiber

@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go-template/internal/api/http/response"
+	"go-template/internal/pkg/validator"
 	"go-template/internal/services/auth"
 	"go-template/internal/types/dto"
 	"net/http"
@@ -30,6 +30,19 @@ func NewUserController(authService *auth.Service) *UserController {
 func (u *UserController) Test(c *fiber.Ctx) error {
 	user := u.authService.GetUser(c)
 
+	// bind
+	var testRequest = &dto.TestRequest{}
+	err := c.QueryParser(testRequest)
+	if err != nil {
+		return err
+	}
+
+	// 验证
+	validationErrors, err := validator.Struct(testRequest)
+	if err != nil {
+		return dto.Ctx(c).Error(err).Data(validationErrors).Send()
+	}
+
 	var currentUserResponse = &dto.CurrentUserResponse{
 		IP:        c.IP(),
 		Valid:     user.Valid,
@@ -38,5 +51,5 @@ func (u *UserController) Test(c *fiber.Ctx) error {
 		UserName:  user.Token.Name,
 	}
 
-	return response.Ctx(c).Status(http.StatusOK).Data(currentUserResponse).Send()
+	return dto.Ctx(c).Status(http.StatusOK).Data(currentUserResponse).Send()
 }

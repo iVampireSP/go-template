@@ -1,9 +1,9 @@
 package constants
 
 import (
-	"go-template/internal/types/auth"
+	"go-template/internal/types/user"
 )
 
 const (
-	RoleSuperAdmin auth.Role = "super-admin"
+	RoleSuperAdmin user.Role = "super-admin"
 )
