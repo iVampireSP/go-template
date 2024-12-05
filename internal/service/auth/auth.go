@@ -21,19 +21,47 @@ func (a *Service) GetUserFromIdToken(idToken string) (*user.User, error) {
 	return a.parseUserJWT(schema.JWTIDToken, idToken)
 }
 
-func (a *Service) GetUser(ctx *fiber.Ctx) (*user.User, bool) {
+func (a *Service) GetUser(ctx *fiber.Ctx) *user.User {
 	userCtx := ctx.Locals(consts.AuthMiddlewareKey)
 
 	u, ok := userCtx.(*user.User)
-	return u, ok
+	u.Id = u.Token.Sub
+
+	if !ok {
+		panic("User context is not valid")
+	}
+
+	return u
 }
 
-func (a *Service) GetCtx(ctx context.Context) (*user.User, bool) {
+func (a *Service) GetCtx(ctx context.Context) *user.User {
 	userCtx := ctx.Value(consts.AuthMiddlewareKey)
 
 	u, ok := userCtx.(*user.User)
-
 	u.Id = u.Token.Sub
+
+	if !ok {
+		panic("User context is not valid")
+	}
+
+	return u
+}
+
+func (a *Service) GetUserSafe(ctx *fiber.Ctx) (*user.User, bool) {
+	userCtx := ctx.Locals(consts.AuthMiddlewareKey)
+
+	u, ok := userCtx.(*user.User)
+	u.Id = u.Token.Sub
+
+	return u, ok
+}
+
+func (a *Service) GetCtxSafe(ctx context.Context) (*user.User, bool) {
+	userCtx := ctx.Value(consts.AuthMiddlewareKey)
+
+	u, ok := userCtx.(*user.User)
+	u.Id = u.Token.Sub
+
 	return u, ok
 }
 

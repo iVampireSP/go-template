@@ -68,7 +68,6 @@ func (hs *HttpServer) AllowAllCors() {
 
 		hs.Fiber.Use(cors.New(config))
 	}
-
 }
 
 func (hs *HttpServer) BizRouter() *fiber.App {
@@ -76,24 +75,13 @@ func (hs *HttpServer) BizRouter() *fiber.App {
 
 	rootGroup := hs.Fiber.Group("")
 
-	// swagger
+	// Swagger
 	hs.swaggerRouter.Register(rootGroup)
 
-	apiV1 := rootGroup.Group("/api/v1")
-	{
-		//apiV1.Use(corsMiddleWare)
-		apiV1.Use(hs.middleware.JSONResponse.Handler())
-		apiV1.Use(hs.middleware.Auth.Handler())
+	// 注册路由
+	hs.apiRouter.V1(rootGroup)
 
-		hs.apiRouter.InitApiRouter(apiV1)
-	}
-
-	apiV1NoAuth := rootGroup.Group("/api/v1")
-	{
-		hs.apiRouter.InitNoAuthApiRouter(apiV1NoAuth)
-	}
-
-	// 404 Handler
+	// 404 Route
 	hs.Fiber.Use(func(ctx *fiber.Ctx) error {
 		return response.Ctx(ctx).Status(fiber.StatusNotFound).Send()
 	})

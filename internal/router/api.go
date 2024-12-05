@@ -30,12 +30,19 @@ func NewApiRoute(
 	}
 }
 
-func (a *Api) InitApiRouter(r fiber.Router) {
-	//r.GET("/ping", a.User.Test)
+func (a *Api) V1(r fiber.Router) {
+	auth := r.Group("/api/v1")
+	{
+		// 要求认证
+		auth.Use(a.Middleware.Auth.Handler())
 
-	r.Get("/ping", a.Middleware.RBAC.RoutePermission(), a.HttpHandler.User.Test)
-}
+		// RoutePermission 为权限验证
+		r.Get("/ping", a.Middleware.RBAC.RoutePermission(), a.HttpHandler.User.Test)
+	}
 
-func (a *Api) InitNoAuthApiRouter(r fiber.Router) {
+	guest := r.Group("/api/v1")
+	{
+		guest.Get("/guest_ping", a.HttpHandler.User.Test)
+	}
 
 }

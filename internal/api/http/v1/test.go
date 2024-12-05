@@ -28,10 +28,7 @@ func NewUserController(authService *auth.Service) *UserController {
 // @Failure      400  {object}  response.Body
 // @Router       /api/v1/ping [get]
 func (u *UserController) Test(c *fiber.Ctx) error {
-	user, ok := u.authService.GetUser(c)
-	if !ok {
-		return response.Ctx(c).Status(http.StatusUnauthorized).Send()
-	}
+	user := u.authService.GetUser(c)
 
 	var currentUserResponse = &schema.CurrentUserResponse{
 		IP:        c.IP(),
@@ -41,5 +38,5 @@ func (u *UserController) Test(c *fiber.Ctx) error {
 		UserName:  user.Token.Name,
 	}
 
-	return response.Ctx(c).Data(currentUserResponse).Send()
+	return response.Ctx(c).Status(http.StatusOK).Data(currentUserResponse).Send()
 }

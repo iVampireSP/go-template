@@ -18,7 +18,7 @@ type RBAC struct {
 
 func (m *RBAC) RoutePermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		user, ok := m.authService.GetUser(c)
+		user, ok := m.authService.GetUserSafe(c)
 		if !ok {
 			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
@@ -47,7 +47,7 @@ func (m *RBAC) RoutePermission() fiber.Handler {
 
 func (m *RBAC) RequirePermissions(permissions ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		user, ok := m.authService.GetUser(c)
+		user, ok := m.authService.GetUserSafe(c)
 		if !ok {
 			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
@@ -85,7 +85,7 @@ func (m *RBAC) RequirePermissions(permissions ...string) fiber.Handler {
 
 func (m *RBAC) RequireRoles(roles ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		user, ok := m.authService.GetUser(c)
+		user, ok := m.authService.GetUserSafe(c)
 		if !ok {
 			return response.Ctx(c).Error(nil).Status(http.StatusUnauthorized).Send()
 		}
