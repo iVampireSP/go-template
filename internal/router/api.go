@@ -12,11 +12,13 @@ import (
 
 type Api struct {
 	HttpHandler *http.Handlers
+	Middleware  *http.Middleware
 }
 
 func NewApiRoute(
 	//User *v1.UserController,
 	HttpHandler *http.Handlers,
+	Middleware *http.Middleware,
 ) *Api {
 	//return &Api{
 	//	User,
@@ -24,13 +26,14 @@ func NewApiRoute(
 
 	return &Api{
 		HttpHandler,
+		Middleware,
 	}
 }
 
 func (a *Api) InitApiRouter(r fiber.Router) {
 	//r.GET("/ping", a.User.Test)
 
-	r.Get("/ping", a.HttpHandler.User.Test)
+	r.Get("/ping", a.Middleware.RBAC.RoutePermission(), a.HttpHandler.User.Test)
 }
 
 func (a *Api) InitNoAuthApiRouter(r fiber.Router) {

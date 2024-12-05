@@ -5,6 +5,7 @@ import (
 	"go-template/internal/api/http/response"
 	"go-template/internal/base/conf"
 	"go-template/internal/consts"
+	"go-template/internal/pkg/user"
 	"go-template/internal/schema"
 	"go-template/internal/service/auth"
 	"net/http"
@@ -12,27 +13,27 @@ import (
 	"strings"
 )
 
-type AuthMiddleware struct {
+type Auth struct {
 	config      *conf.Config
 	authService *auth.Service
 }
 
 var audienceLength int
 
-func NewAuthMiddleware(config *conf.Config, authService *auth.Service) *AuthMiddleware {
+func NewAuth(config *conf.Config, authService *auth.Service) *Auth {
 	audienceLength = len(config.App.AllowedAudiences)
 
-	return &AuthMiddleware{
+	return &Auth{
 		config,
 		authService,
 	}
 }
 
-func (a *AuthMiddleware) Handler() fiber.Handler {
+func (a *Auth) Handler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var r = response.Ctx(c)
 		var err error
-		var token *schema.User
+		var token = new(user.User)
 
 		if a.config.Debug.Enabled {
 			token, err = a.authService.AuthFromToken(schema.JWTAccessToken, "")

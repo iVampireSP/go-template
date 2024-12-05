@@ -18,6 +18,7 @@ type Middleware struct {
 	Logger       IMiddleware
 	Auth         IMiddleware
 	JSONResponse IMiddleware
+	RBAC         *middleware.RBAC
 }
 
 type Handlers struct {
@@ -34,17 +35,24 @@ func NewHandler(
 
 func NewMiddleware(config *conf.Config, logger *logger.Logger, authService *auth.Service) *Middleware {
 	return &Middleware{
-		Logger:       middleware.NewLoggerMiddleware(logger.Logger),
-		Auth:         middleware.NewAuthMiddleware(config, authService),
-		JSONResponse: middleware.NewJSONResponseMiddleware(),
+		Logger:       middleware.NewLogger(logger.Logger),
+		Auth:         middleware.NewAuth(config, authService),
+		JSONResponse: middleware.NewJSONResponse(),
+		RBAC:         middleware.NewRBAC(authService, config),
 	}
 }
 
 var ProviderSet = wire.NewSet(
-	middleware.NewAuthMiddleware,
-	middleware.NewLoggerMiddleware,
-	middleware.NewJSONResponseMiddleware,
+	// Init Middleware
+	middleware.NewAuth,
+	middleware.NewLogger,
+	middleware.NewJSONResponse,
+	middleware.NewRBAC,
 	NewMiddleware,
+
+	// Init Controller
 	v1.NewUserController,
+
+	// Init Handler
 	NewHandler,
 )

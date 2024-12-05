@@ -5,10 +5,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mitchellh/mapstructure"
 	"go-template/internal/consts"
+	"go-template/internal/pkg/user"
 	"go-template/internal/schema"
 )
 
-func (a *Service) AuthFromToken(tokenType schema.JWTTokenTypes, token string) (*schema.User, error) {
+func (a *Service) AuthFromToken(tokenType schema.JWTTokenTypes, token string) (*user.User, error) {
 	if a.config.Debug.Enabled {
 		return a.parseUserJWT(tokenType, "")
 	}
@@ -16,33 +17,33 @@ func (a *Service) AuthFromToken(tokenType schema.JWTTokenTypes, token string) (*
 	return a.parseUserJWT(tokenType, token)
 }
 
-func (a *Service) GetUserFromIdToken(idToken string) (*schema.User, error) {
+func (a *Service) GetUserFromIdToken(idToken string) (*user.User, error) {
 	return a.parseUserJWT(schema.JWTIDToken, idToken)
 }
 
-func (a *Service) GetUser(ctx *fiber.Ctx) (*schema.User, bool) {
-	user := ctx.Locals(consts.AuthMiddlewareKey)
+func (a *Service) GetUser(ctx *fiber.Ctx) (*user.User, bool) {
+	userCtx := ctx.Locals(consts.AuthMiddlewareKey)
 
-	u, ok := user.(*schema.User)
+	u, ok := userCtx.(*user.User)
 	return u, ok
 }
 
-func (a *Service) GetCtx(ctx context.Context) (*schema.User, bool) {
-	user := ctx.Value(consts.AuthMiddlewareKey)
+func (a *Service) GetCtx(ctx context.Context) (*user.User, bool) {
+	userCtx := ctx.Value(consts.AuthMiddlewareKey)
 
-	u, ok := user.(*schema.User)
+	u, ok := userCtx.(*user.User)
 
 	u.Id = u.Token.Sub
 	return u, ok
 }
 
-func (a *Service) SetUser(ctx context.Context, user *schema.User) context.Context {
+func (a *Service) SetUser(ctx context.Context, user *user.User) context.Context {
 	return context.WithValue(ctx, consts.AuthMiddlewareKey, user)
 }
 
-func (a *Service) parseUserJWT(tokenType schema.JWTTokenTypes, jwtToken string) (*schema.User, error) {
+func (a *Service) parseUserJWT(tokenType schema.JWTTokenTypes, jwtToken string) (*user.User, error) {
 	var sub = consts.AnonymousUser
-	var jwtIdToken = &schema.User{}
+	var jwtIdToken = new(user.User)
 
 	if a.config.Debug.Enabled {
 		jwtIdToken.Token.Sub = sub
@@ -59,12 +60,7 @@ func (a *Service) parseUserJWT(tokenType schema.JWTTokenTypes, jwtToken string) 
 			return nil, consts.ErrNotValidToken
 		}
 
-		//subInt, err := strconv.Atoi(subStr)
-		//if err != nil {
-		//	return nil, consts.ErrNotValidToken
-		//}
-
-		sub = schema.UserId(subStr)
+		sub = user.Id(subStr)
 
 		// 如果 token.Header 中没有 typ
 		if token.Header["typ"] == "" {

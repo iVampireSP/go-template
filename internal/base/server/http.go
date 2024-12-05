@@ -12,6 +12,7 @@ import (
 	"go-template/internal/base/logger"
 	"go-template/internal/consts"
 	"go-template/internal/router"
+	"go-template/internal/service/auth"
 	"net/http"
 	"strings"
 )
@@ -22,6 +23,7 @@ type HttpServer struct {
 	apiRouter     *router.Api
 	swaggerRouter *router.SwaggerRouter
 	middleware    *httpApi.Middleware
+	authService   *auth.Service
 }
 
 // NewHTTPServer new http server.
@@ -82,6 +84,7 @@ func (hs *HttpServer) BizRouter() *fiber.App {
 		//apiV1.Use(corsMiddleWare)
 		apiV1.Use(hs.middleware.JSONResponse.Handler())
 		apiV1.Use(hs.middleware.Auth.Handler())
+
 		hs.apiRouter.InitApiRouter(apiV1)
 	}
 

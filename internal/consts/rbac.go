@@ -1,7 +1,9 @@
 package consts
 
-import "go-template/internal/schema"
+import (
+	"go-template/internal/pkg/user"
+)
 
 const (
-	RoleSuperAdmin schema.UserRole = "super-admin"
+	RoleSuperAdmin user.Role = "super-admin"
 )

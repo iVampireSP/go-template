@@ -4,10 +4,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type JSONResponseMiddleware struct {
+type JSONResponse struct {
 }
 
-func (*JSONResponseMiddleware) Handler() fiber.Handler {
+func (*JSONResponse) Handler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		c.Response().Header.Set("Content-Type", "application/json")
 		return c.Next()
@@ -15,6 +15,6 @@ func (*JSONResponseMiddleware) Handler() fiber.Handler {
 	}
 }
 
-func NewJSONResponseMiddleware() *JSONResponseMiddleware {
-	return &JSONResponseMiddleware{}
+func NewJSONResponse() *JSONResponse {
+	return &JSONResponse{}
 }

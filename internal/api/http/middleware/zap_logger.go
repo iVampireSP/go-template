@@ -6,17 +6,17 @@ import (
 	"go.uber.org/zap"
 )
 
-type LoggerMiddleware struct {
+type Logger struct {
 	logger *zap.Logger
 }
 
-func NewLoggerMiddleware(logger *zap.Logger) *LoggerMiddleware {
-	return &LoggerMiddleware{
+func NewLogger(logger *zap.Logger) *Logger {
+	return &Logger{
 		logger: logger,
 	}
 }
 
-func (l *LoggerMiddleware) Handler() fiber.Handler {
+func (l *Logger) Handler() fiber.Handler {
 	var config = fiberzap.Config{
 		Logger: l.logger,
 	}

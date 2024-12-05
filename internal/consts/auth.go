@@ -2,15 +2,15 @@ package consts
 
 import (
 	"errors"
-	"go-template/internal/schema"
+	"go-template/internal/pkg/user"
 )
 
 const (
 	AuthHeader = "Authorization"
 	AuthPrefix = "Bearer"
 
-	//AnonymousUser schema.UserId = 1
-	AnonymousUser schema.UserId = "anonymous"
+	// AnonymousUser 调试模式下的用户
+	AnonymousUser user.Id = "anonymous"
 
 	AuthMiddlewareKey               = "auth.user"
 	AuthAssistantShareMiddlewareKey = "auth.assistant.share"

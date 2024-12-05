@@ -18,8 +18,8 @@ func init() {
 
 var migrateCommand = &cobra.Command{
 	Use:   "goose [command]",
-	Short: "goose 迁移，用法 <command>",
-	Long:  "适用于生产环境的数据库迁移",
+	Short: "goose <command>",
+	Long:  "Run goose",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			_ = cmd.Help()
@@ -31,8 +31,8 @@ var migrateCommand = &cobra.Command{
 
 var createGoMigrateCommand = &cobra.Command{
 	Use:   "create-migrate",
-	Short: "新建 go 迁移",
-	Long:  "新建 goose 的 go 迁移。",
+	Short: "create go migration",
+	Long:  "create go migration using goose.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			_ = cmd.Help()

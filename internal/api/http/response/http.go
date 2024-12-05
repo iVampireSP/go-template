@@ -74,6 +74,7 @@ func (r *HttpResponse) Error(err error) *HttpResponse {
 		if r.body.Message == "" {
 			r.Message("Something went wrong")
 		}
+
 		r.body.Success = false
 	}
 
@@ -94,6 +95,13 @@ func (r *HttpResponse) Send() error {
 
 	// if 20x or 20x, set success
 	r.body.Success = r.httpStatus >= http.StatusOK && r.httpStatus < http.StatusMultipleChoices
+
+	// if 403 or 401 but not have message
+	if r.httpStatus == http.StatusForbidden || r.httpStatus == http.StatusUnauthorized {
+		if r.body.Message == "" {
+			r.Message("Unauthorized")
+		}
+	}
 
 	if r.body.Wrap {
 		return r.ctx.Status(r.httpStatus).JSON(r.body)
