@@ -16,9 +16,9 @@ type Service struct {
 	Stream *stream.Service
 }
 
-var Provider = wire.NewSet(
+var Provide = wire.NewSet(
 	jwks.NewJWKS,
-	auth.NewAuthService,
+	auth.NewService,
 	stream.NewService,
 	NewService,
 )

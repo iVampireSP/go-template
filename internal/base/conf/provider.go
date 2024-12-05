@@ -13,8 +13,8 @@ var depth = 8
 
 func getConfigPath() string {
 	var path string
-	if os.Getenv("AMBER_CONFIG") != "" {
-		path = os.Getenv("AMBER_CONFIG")
+	if os.Getenv("CONFIG") != "" {
+		path = os.Getenv("CONFIG")
 		return path
 	}
 	var pathOptions []string
@@ -45,7 +45,7 @@ func getConfigPath() string {
 	return path
 }
 
-func ProviderConfig() *Config {
+func NewConfig() *Config {
 	var path = getConfigPath()
 	createConfigIfNotExists(path)
 

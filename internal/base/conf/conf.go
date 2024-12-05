@@ -37,9 +37,18 @@ type ThirdParty struct {
 }
 
 type Http struct {
-	Host string `yaml:"host"`
-	Port int    `yaml:"port"`
-	Url  string `yaml:"url"`
+	Host string `yaml:"host" mapstructure:"host"`
+	Port int    `yaml:"port" mapstructure:"port"`
+	Url  string `yaml:"url" mapstructure:"url"`
+	Cors struct {
+		Enabled          bool     `yaml:"enabled" mapstructure:"enabled"`
+		AllowedOrigins   []string `yaml:"allow_origins" mapstructure:"allow_origins"`
+		AllowMethods     []string `yaml:"allow_methods" mapstructure:"allow_methods"`
+		AllowHeaders     []string `yaml:"allow_headers" mapstructure:"allow_headers"`
+		AllowCredentials bool     `yaml:"allow_credentials" mapstructure:"allow_credentials"`
+		ExposeHeaders    []string `yaml:"expose_headers" mapstructure:"expose_headers"`
+		MaxAge           int      `yaml:"max_age" mapstructure:"max_age"`
+	} `yaml:"cors" mapstructure:"cors"`
 }
 
 type Debug struct {

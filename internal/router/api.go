@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/labstack/echo/v4"
-	"go-template/internal/handler/http"
+	"github.com/gofiber/fiber/v2"
+	"go-template/internal/api/http"
 )
 
 // 两种方法都可以
@@ -27,12 +27,12 @@ func NewApiRoute(
 	}
 }
 
-func (a *Api) InitApiRouter(r *echo.Group) {
+func (a *Api) InitApiRouter(r fiber.Router) {
 	//r.GET("/ping", a.User.Test)
 
-	r.GET("/ping", a.HttpHandler.User.Test)
+	r.Get("/ping", a.HttpHandler.User.Test)
 }
 
-func (a *Api) InitNoAuthApiRouter(r *echo.Group) {
+func (a *Api) InitNoAuthApiRouter(r fiber.Router) {
 
 }

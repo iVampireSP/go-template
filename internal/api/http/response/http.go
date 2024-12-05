@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 )
 
@@ -16,10 +16,10 @@ type Body struct {
 type HttpResponse struct {
 	body       *Body
 	httpStatus int
-	ctx        echo.Context
+	ctx        *fiber.Ctx
 }
 
-func Ctx(c echo.Context) *HttpResponse {
+func Ctx(c *fiber.Ctx) *HttpResponse {
 	return &HttpResponse{
 		body: &Body{
 			Wrap: true,
@@ -96,10 +96,10 @@ func (r *HttpResponse) Send() error {
 	r.body.Success = r.httpStatus >= http.StatusOK && r.httpStatus < http.StatusMultipleChoices
 
 	if r.body.Wrap {
-		return r.ctx.JSON(r.httpStatus, r.body)
+		return r.ctx.Status(r.httpStatus).JSON(r.body)
 	}
 
-	return r.ctx.JSON(r.httpStatus, r.body.Data)
+	return r.ctx.Status(r.httpStatus).JSON(r.body.Data)
 }
 
 //

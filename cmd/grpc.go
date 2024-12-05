@@ -34,19 +34,19 @@ var documentServiceCommand = &cobra.Command{
 		}
 		var opts = []grpc.ServerOption{
 			grpc.ChainUnaryInterceptor(
-				logging.UnaryServerInterceptor(app.Handler.GRPC.Interceptor.Logger.ZapLogInterceptor()),
+				logging.UnaryServerInterceptor(app.Api.GRPC.Interceptor.Logger.ZapLogInterceptor()),
 
-				app.Handler.GRPC.Interceptor.Auth.UnaryJWTAuth(),
+				app.Api.GRPC.Interceptor.Auth.UnaryJWTAuth(),
 			),
 			grpc.ChainStreamInterceptor(
-				logging.StreamServerInterceptor(app.Handler.GRPC.Interceptor.Logger.ZapLogInterceptor()),
-				app.Handler.GRPC.Interceptor.Auth.StreamJWTAuth(),
+				logging.StreamServerInterceptor(app.Api.GRPC.Interceptor.Logger.ZapLogInterceptor()),
+				app.Api.GRPC.Interceptor.Auth.StreamJWTAuth(),
 			),
 		}
 		grpcServer := grpc.NewServer(opts...)
 
 		// 注册服务
-		v1.RegisterDocumentServiceServer(grpcServer, app.Handler.GRPC.DocumentApi)
+		v1.RegisterDocumentServiceServer(grpcServer, app.Api.GRPC.DocumentApi)
 
 		// 反射
 		reflection.Register(grpcServer)
@@ -76,7 +76,7 @@ var documentServiceCommand = &cobra.Command{
 
 			var err error
 
-			// 注册服务到网关
+			// 注册服务到网关并转为 Http 请求
 			err = v1.RegisterDocumentServiceHandlerFromEndpoint(ctx, mux, app.Config.Grpc.Address, dialOption)
 
 			if err != nil {

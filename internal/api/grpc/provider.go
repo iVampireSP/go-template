@@ -2,21 +2,21 @@ package grpc
 
 import (
 	"github.com/google/wire"
-	"go-template/internal/handler/grpc/documents"
-	"go-template/internal/handler/grpc/interceptor"
+	"go-template/internal/api/grpc/interceptor"
+	"go-template/internal/api/grpc/v1/documents"
 )
 
 var ProviderSet = wire.NewSet(
 	interceptor.NewAuth,
 	interceptor.NewLogger,
-	documents.NewApi,
+	documents.NewHandler,
 
 	NewInterceptor,
 	NewHandler,
 )
 
 func NewHandler(
-	documentApi *documents.Api,
+	documentApi *documents.Handler,
 	interceptor2 *Interceptor,
 ) *Handlers {
 	return &Handlers{
@@ -26,7 +26,7 @@ func NewHandler(
 }
 
 type Handlers struct {
-	DocumentApi *documents.Api
+	DocumentApi *documents.Handler
 	Interceptor *Interceptor
 }
 

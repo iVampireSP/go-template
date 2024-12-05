@@ -3,7 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"go-template/internal/migrations"
+	"go-template/internal/database/migrations"
 	"os"
 	"strings"
 	"time"
@@ -87,7 +87,7 @@ func RunMigrate(args []string) {
 }
 
 func createGooseMigration(name string) {
-	// 在 internal/migrations 目录下新建一个迁移文件
+	// 在 internal/database/migrations 目录下新建一个迁移文件
 	// 文件名为 yyyy-mm-dd-hh-mm-ss-<name>.go
 	month := int(time.Now().Month())
 	monthString := fmt.Sprintf("%d", month)
@@ -149,7 +149,7 @@ func Down<FuncName>(ctx context.Context, tx *sql.Tx) error {
 `
 
 	template = strings.ReplaceAll(template, "<FuncName>", funcName+name)
-	err := os.WriteFile("internal/migrations/"+fileName, []byte(template), 0644)
+	err := os.WriteFile("internal/database/migrations/"+fileName, []byte(template), 0644)
 	if err != nil {
 		panic(fmt.Sprintf("failed creating migration file: %v", err))
 	}

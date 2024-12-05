@@ -1,17 +1,17 @@
 package http
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/wire"
-	"github.com/labstack/echo/v4"
+	"go-template/internal/api/http/middleware"
+	"go-template/internal/api/http/v1"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
-	v1 "go-template/internal/handler/http/controller/v1"
-	"go-template/internal/handler/http/middleware"
 	"go-template/internal/service/auth"
 )
 
 type IMiddleware interface {
-	Handler() echo.MiddlewareFunc
+	Handler() fiber.Handler
 }
 
 type Middleware struct {

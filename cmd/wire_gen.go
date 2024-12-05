@@ -8,6 +8,12 @@ package cmd
 
 import (
 	"github.com/google/wire"
+	"go-template/internal/api"
+	"go-template/internal/api/grpc"
+	"go-template/internal/api/grpc/interceptor"
+	"go-template/internal/api/grpc/v1/documents"
+	"go-template/internal/api/http"
+	"go-template/internal/api/http/v1"
 	"go-template/internal/base"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
@@ -18,12 +24,6 @@ import (
 	"go-template/internal/base/server"
 	"go-template/internal/batch"
 	"go-template/internal/dao"
-	"go-template/internal/handler"
-	"go-template/internal/handler/grpc"
-	"go-template/internal/handler/grpc/documents"
-	"go-template/internal/handler/grpc/interceptor"
-	"go-template/internal/handler/http"
-	"go-template/internal/handler/http/controller/v1"
 	"go-template/internal/router"
 	"go-template/internal/service"
 	"go-template/internal/service/auth"
@@ -34,34 +34,34 @@ import (
 // Injectors from wire.go:
 
 func CreateApp() (*base.Application, error) {
-	config := conf.ProviderConfig()
+	config := conf.NewConfig()
 	loggerLogger := logger.NewZapLogger(config)
 	jwksJWKS := jwks.NewJWKS(config, loggerLogger)
-	authService := auth.NewAuthService(config, jwksJWKS, loggerLogger)
+	db := orm.NewGORM(config, loggerLogger)
+	authService := auth.NewService(config, jwksJWKS, loggerLogger, db)
 	userController := v1.NewUserController(authService)
 	handlers := http.NewHandler(userController)
-	api := router.NewApiRoute(handlers)
+	routerApi := router.NewApiRoute(handlers)
 	swaggerRouter := router.NewSwaggerRoute()
 	middleware := http.NewMiddleware(config, loggerLogger, authService)
-	httpServer := server.NewHTTPServer(config, api, swaggerRouter, middleware)
-	db := orm.NewGORM(config, loggerLogger)
+	httpServer := server.NewHTTPServer(config, routerApi, swaggerRouter, middleware, loggerLogger)
 	query := dao.NewQuery(db)
-	documentsApi := documents.NewApi(query)
+	handler := documents.NewHandler(query)
 	interceptorAuth := interceptor.NewAuth(authService, loggerLogger, config)
 	interceptorLogger := interceptor.NewLogger(loggerLogger)
 	grpcInterceptor := grpc.NewInterceptor(interceptorAuth, interceptorLogger)
-	grpcHandlers := grpc.NewHandler(documentsApi, grpcInterceptor)
-	handlerHandler := handler.NewHandler(grpcHandlers, handlers)
+	grpcHandlers := grpc.NewHandler(handler, grpcInterceptor)
+	apiApi := api.NewApi(grpcHandlers, handlers)
 	streamService := stream.NewService(config)
 	serviceService := service.NewService(loggerLogger, jwksJWKS, authService, streamService)
 	redisRedis := redis.NewRedis(config)
 	batchBatch := batch.NewBatch(loggerLogger)
 	s3S3 := s3.NewS3(config)
 	client := milvus.NewService(config, loggerLogger)
-	application := base.NewApplication(config, httpServer, handlerHandler, loggerLogger, serviceService, middleware, redisRedis, batchBatch, s3S3, db, query, client)
+	application := base.NewApplication(config, httpServer, apiApi, loggerLogger, serviceService, redisRedis, batchBatch, s3S3, db, query, client)
 	return application, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(conf.ProviderConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, milvus.NewService, batch.NewBatch, service.Provider, handler.ProviderSet, router.ProviderSetRouter, server.NewHTTPServer, base.NewApplication)
+var ProviderSet = wire.NewSet(conf.NewConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, milvus.NewService, batch.NewBatch, service.Provide, api.Provide, router.Provide, server.NewHTTPServer, base.NewApplication)

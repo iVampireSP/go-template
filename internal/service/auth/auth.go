@@ -2,28 +2,11 @@ package auth
 
 import (
 	"context"
-	"github.com/labstack/echo/v4"
+	"github.com/gofiber/fiber/v2"
 	"github.com/mitchellh/mapstructure"
-	"go-template/internal/base/conf"
-	"go-template/internal/base/logger"
+	"go-template/internal/consts"
 	"go-template/internal/schema"
-	"go-template/internal/service/jwks"
-	"go-template/pkg/consts"
 )
-
-type Service struct {
-	config *conf.Config
-	jwks   *jwks.JWKS
-	logger *logger.Logger
-}
-
-func NewAuthService(config *conf.Config, jwks *jwks.JWKS, logger *logger.Logger) *Service {
-	return &Service{
-		config: config,
-		jwks:   jwks,
-		logger: logger,
-	}
-}
 
 func (a *Service) AuthFromToken(tokenType schema.JWTTokenTypes, token string) (*schema.User, error) {
 	if a.config.Debug.Enabled {
@@ -37,18 +20,8 @@ func (a *Service) GetUserFromIdToken(idToken string) (*schema.User, error) {
 	return a.parseUserJWT(schema.JWTIDToken, idToken)
 }
 
-func (a *Service) GetUserId(ctx echo.Context) (schema.UserId, error) {
-	user, ok := a.GetUser(ctx)
-
-	if !ok {
-		return "", consts.ErrUnauthorized
-	}
-
-	return user.Token.Sub, nil
-}
-
-func (a *Service) GetUser(ctx echo.Context) (*schema.User, bool) {
-	user := ctx.Get(consts.AuthMiddlewareKey)
+func (a *Service) GetUser(ctx *fiber.Ctx) (*schema.User, bool) {
+	user := ctx.Locals(consts.AuthMiddlewareKey)
 
 	u, ok := user.(*schema.User)
 	return u, ok

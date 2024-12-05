@@ -1,10 +1,9 @@
 package router
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 	_ "go-template/docs"
-
-	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type SwaggerRouter struct {
@@ -15,6 +14,6 @@ func NewSwaggerRoute() *SwaggerRouter {
 	return &SwaggerRouter{}
 }
 
-func (a *SwaggerRouter) Register(e *echo.Group) {
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+func (a *SwaggerRouter) Register(r fiber.Router) {
+	r.Get("/swagger/*", swagger.HandlerDefault)
 }

@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"github.com/labstack/echo/v4"
-	"go-template/internal/handler/http/response"
+	"github.com/gofiber/fiber/v2"
+	"go-template/internal/api/http/response"
 	"go-template/internal/schema"
 	"go-template/internal/service/auth"
 	"net/http"
@@ -27,14 +27,14 @@ func NewUserController(authService *auth.Service) *UserController {
 // @Success      200  {object}  response.Body{data=schema.CurrentUserResponse}
 // @Failure      400  {object}  response.Body
 // @Router       /api/v1/ping [get]
-func (u *UserController) Test(c echo.Context) error {
+func (u *UserController) Test(c *fiber.Ctx) error {
 	user, ok := u.authService.GetUser(c)
 	if !ok {
 		return response.Ctx(c).Status(http.StatusUnauthorized).Send()
 	}
 
 	var currentUserResponse = &schema.CurrentUserResponse{
-		IP:        c.Request().RemoteAddr,
+		IP:        c.IP(),
 		Valid:     user.Valid,
 		UserEmail: user.Token.Email,
 		UserId:    user.Token.Sub,

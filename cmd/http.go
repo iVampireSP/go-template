@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"errors"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/spf13/cobra"
 	"net/http"
 	"os"
@@ -46,7 +47,7 @@ func initHttpServer() {
 	}
 
 	bizServer.Addr = app.Config.Http.Host + ":" + strconv.Itoa(app.Config.Http.Port)
-	bizServer.Handler = app.HttpServer.BizRouter()
+	bizServer.Handler = adaptor.FiberApp(app.HttpServer.BizRouter())
 
 	// 启动 http
 	go func() {
@@ -70,7 +71,7 @@ func initHttpServer() {
 		go func() {
 			app.Logger.Sugar.Info("Metrics and serving HTTP on ", metricServer.Addr)
 
-			metricServer.Handler = app.HttpServer.MetricRouter()
+			metricServer.Handler = adaptor.FiberApp(app.HttpServer.MetricRouter())
 
 			err = metricServer.ListenAndServe()
 			if err != nil && !errors.Is(http.ErrServerClosed, err) {
@@ -80,21 +81,22 @@ func initHttpServer() {
 		}()
 	}
 
-	// 等待一个 INT 或 TERM 信号
 	quit := make(chan os.Signal)
+
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
 	<-quit
-	app.Logger.Sugar.Info("Shutdown Server ...")
-	// 创建超时上下文，Shutdown 可以让未处理的连接在这个时间内关闭
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	app.Logger.Sugar.Info("Shutdown http server")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	// 停止HTTP服务器
 	if err := bizServer.Shutdown(ctx); err != nil {
-		app.Logger.Sugar.Fatal("Biz Server Shutdown Error:", err)
+		app.Logger.Sugar.Fatalf("Biz Server Shutdown Error: %s", err)
 	}
 
 	if err := metricServer.Shutdown(ctx); err != nil {
-		app.Logger.Sugar.Fatal("Metric Server Shutdown Error:", err)
+		app.Logger.Sugar.Fatalf("Metric Server Shutdown Error: %s", err)
 	}
 }

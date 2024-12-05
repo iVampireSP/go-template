@@ -1,27 +1,27 @@
-package handler
+package api
 
 import (
 	"github.com/google/wire"
-	"go-template/internal/handler/grpc"
-	"go-template/internal/handler/http"
+	"go-template/internal/api/grpc"
+	"go-template/internal/api/http"
 )
 
-var ProviderSet = wire.NewSet(
+var Provide = wire.NewSet(
 	grpc.ProviderSet,
 	http.ProviderSet,
-	NewHandler,
+	NewApi,
 )
 
-type Handler struct {
+type Api struct {
 	GRPC *grpc.Handlers
 	HTTP *http.Handlers
 }
 
-func NewHandler(
+func NewApi(
 	grpcHandlers *grpc.Handlers,
 	httpHandlers *http.Handlers,
-) *Handler {
-	return &Handler{
+) *Api {
+	return &Api{
 		GRPC: grpcHandlers,
 		HTTP: httpHandlers,
 	}

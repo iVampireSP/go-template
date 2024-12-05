@@ -24,7 +24,6 @@ var (
 	ErrTokenError         = errors.New("token type error")
 	ErrUnauthorized       = errors.New("unauthorized")
 	ErrAudienceNotAllowed = errors.New("audience not allowed")
-	ErrBearerToken        = errors.New("无效的 Bearer 令牌")
 
 	ErrNotYourResource  = errors.New("this resource not yours")
 	ErrPermissionDenied = errors.New("permission denied")

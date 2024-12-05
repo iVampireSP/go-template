@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"go-template/internal/api"
 	"go-template/internal/base"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
@@ -14,7 +15,6 @@ import (
 	"go-template/internal/base/server"
 	"go-template/internal/batch"
 	"go-template/internal/dao"
-	"go-template/internal/handler"
 	"go-template/internal/router"
 	"go-template/internal/service"
 
@@ -22,7 +22,7 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	conf.ProviderConfig,
+	conf.NewConfig,
 	logger.NewZapLogger,
 	orm.NewGORM,
 	dao.NewQuery,
@@ -30,9 +30,9 @@ var ProviderSet = wire.NewSet(
 	s3.NewS3,
 	milvus.NewService,
 	batch.NewBatch,
-	service.Provider,
-	handler.ProviderSet,
-	router.ProviderSetRouter,
+	service.Provide,
+	api.Provide,
+	router.Provide,
 	server.NewHTTPServer,
 	base.NewApplication,
 )

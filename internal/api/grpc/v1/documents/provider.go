@@ -5,13 +5,13 @@ import (
 	v1 "go-template/proto/gen/proto/api/v1"
 )
 
-type Api struct {
+type Handler struct {
 	v1.UnimplementedDocumentServiceServer
 	dao *dao.Query
 }
 
-func NewApi(dao *dao.Query) *Api {
-	return &Api{
+func NewHandler(dao *dao.Query) *Handler {
+	return &Handler{
 		v1.UnimplementedDocumentServiceServer{},
 		dao,
 	}

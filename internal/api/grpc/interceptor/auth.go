@@ -6,9 +6,9 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
+	"go-template/internal/consts"
 	"go-template/internal/schema"
 	auth2 "go-template/internal/service/auth"
-	"go-template/pkg/consts"
 	"google.golang.org/grpc"
 )
 
