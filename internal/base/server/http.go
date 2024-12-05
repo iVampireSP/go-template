@@ -10,9 +10,9 @@ import (
 	"go-template/internal/api/http/response"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
-	"go-template/internal/consts"
 	"go-template/internal/router"
-	"go-template/internal/service/auth"
+	"go-template/internal/services/auth"
+	"go-template/internal/types/constants"
 	"net/http"
 	"strings"
 )
@@ -39,7 +39,7 @@ func NewHTTPServer(
 		JSONDecoder: sonic.Unmarshal,
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
 			logger.Sugar.Errorf("fiber error: %s", err)
-			return response.Ctx(ctx).Status(fiber.StatusInternalServerError).Error(consts.ErrInternalServerError).Send()
+			return response.Ctx(ctx).Status(fiber.StatusInternalServerError).Error(constants.ErrInternalServerError).Send()
 		},
 	})
 	app.Use(recover.New())

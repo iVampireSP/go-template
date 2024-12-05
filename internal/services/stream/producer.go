@@ -3,7 +3,7 @@ package stream
 import (
 	"context"
 	"github.com/segmentio/kafka-go"
-	"go-template/internal/schema"
+	"go-template/internal/types/events"
 	"time"
 )
 
@@ -100,7 +100,7 @@ func (s *Service) SendMessage(ctx context.Context, topic string, data []byte) er
 	return err
 }
 
-func (s *Service) SendEvent(ctx context.Context, topic string, data schema.EventMessage) error {
+func (s *Service) SendEvent(ctx context.Context, topic string, data events.EventMessage) error {
 	j, err := data.JSON()
 	if err != nil {
 		return err

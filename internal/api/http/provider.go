@@ -7,7 +7,7 @@ import (
 	"go-template/internal/api/http/v1"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
-	"go-template/internal/service/auth"
+	"go-template/internal/services/auth"
 )
 
 type IMiddleware interface {

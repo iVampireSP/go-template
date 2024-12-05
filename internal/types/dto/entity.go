@@ -1,4 +1,4 @@
-package schema
+package dto
 
 import (
 	"strconv"

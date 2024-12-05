@@ -5,8 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go-template/internal/api/http/response"
 	"go-template/internal/base/conf"
-	userPkg "go-template/internal/pkg/user"
-	"go-template/internal/service/auth"
+	"go-template/internal/services/auth"
+	userPkg "go-template/internal/types/auth"
 	"net/http"
 	"strings"
 )

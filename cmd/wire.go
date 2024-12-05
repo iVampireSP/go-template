@@ -16,7 +16,7 @@ import (
 	"go-template/internal/batch"
 	"go-template/internal/dao"
 	"go-template/internal/router"
-	"go-template/internal/service"
+	"go-template/internal/services"
 
 	"github.com/google/wire"
 )
@@ -30,7 +30,7 @@ var ProviderSet = wire.NewSet(
 	s3.NewS3,
 	milvus.NewService,
 	batch.NewBatch,
-	service.Provide,
+	services.Provide,
 	api.Provide,
 	router.Provide,
 	server.NewHTTPServer,

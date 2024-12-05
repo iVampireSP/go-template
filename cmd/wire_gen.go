@@ -25,10 +25,10 @@ import (
 	"go-template/internal/batch"
 	"go-template/internal/dao"
 	"go-template/internal/router"
-	"go-template/internal/service"
-	"go-template/internal/service/auth"
-	"go-template/internal/service/jwks"
-	"go-template/internal/service/stream"
+	"go-template/internal/services"
+	"go-template/internal/services/auth"
+	"go-template/internal/services/jwks"
+	"go-template/internal/services/stream"
 )
 
 // Injectors from wire.go:
@@ -37,31 +37,31 @@ func CreateApp() (*base.Application, error) {
 	config := conf.NewConfig()
 	loggerLogger := logger.NewZapLogger(config)
 	jwksJWKS := jwks.NewJWKS(config, loggerLogger)
-	authService := auth.NewService(config, jwksJWKS, loggerLogger)
-	userController := v1.NewUserController(authService)
+	service := auth.NewService(config, jwksJWKS, loggerLogger)
+	userController := v1.NewUserController(service)
 	handlers := http.NewHandler(userController)
-	middleware := http.NewMiddleware(config, loggerLogger, authService)
+	middleware := http.NewMiddleware(config, loggerLogger, service)
 	routerApi := router.NewApiRoute(handlers, middleware)
 	swaggerRouter := router.NewSwaggerRoute()
 	httpServer := server.NewHTTPServer(config, routerApi, swaggerRouter, middleware, loggerLogger)
 	db := orm.NewGORM(config, loggerLogger)
 	query := dao.NewQuery(db)
 	handler := documents.NewHandler(query)
-	interceptorAuth := interceptor.NewAuth(authService, loggerLogger, config)
+	interceptorAuth := interceptor.NewAuth(service, loggerLogger, config)
 	interceptorLogger := interceptor.NewLogger(loggerLogger)
 	grpcInterceptor := grpc.NewInterceptor(interceptorAuth, interceptorLogger)
 	grpcHandlers := grpc.NewHandler(handler, grpcInterceptor)
 	apiApi := api.NewApi(grpcHandlers, handlers)
 	streamService := stream.NewService(config)
-	serviceService := service.NewService(loggerLogger, jwksJWKS, authService, streamService)
+	servicesService := services.NewService(loggerLogger, jwksJWKS, service, streamService)
 	redisRedis := redis.NewRedis(config)
 	batchBatch := batch.NewBatch(loggerLogger)
 	s3S3 := s3.NewS3(config)
 	client := milvus.NewService(config, loggerLogger)
-	application := base.NewApplication(config, httpServer, apiApi, loggerLogger, serviceService, redisRedis, batchBatch, s3S3, db, query, client)
+	application := base.NewApplication(config, httpServer, apiApi, loggerLogger, servicesService, redisRedis, batchBatch, s3S3, db, query, client)
 	return application, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(conf.NewConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, milvus.NewService, batch.NewBatch, service.Provide, api.Provide, router.Provide, server.NewHTTPServer, base.NewApplication)
+var ProviderSet = wire.NewSet(conf.NewConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, milvus.NewService, batch.NewBatch, services.Provide, api.Provide, router.Provide, server.NewHTTPServer, base.NewApplication)

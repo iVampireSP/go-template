@@ -1,4 +1,4 @@
-package schema
+package auth
 
 type JWTTokenTypes string
 

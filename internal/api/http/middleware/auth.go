@@ -4,10 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go-template/internal/api/http/response"
 	"go-template/internal/base/conf"
-	"go-template/internal/consts"
-	"go-template/internal/pkg/user"
-	"go-template/internal/schema"
-	"go-template/internal/service/auth"
+	authService "go-template/internal/services/auth"
+	authType "go-template/internal/types/auth"
+	"go-template/internal/types/constants"
 	"net/http"
 	"slices"
 	"strings"
@@ -15,12 +14,12 @@ import (
 
 type Auth struct {
 	config      *conf.Config
-	authService *auth.Service
+	authService *authService.Service
 }
 
 var audienceLength int
 
-func NewAuth(config *conf.Config, authService *auth.Service) *Auth {
+func NewAuth(config *conf.Config, authService *authService.Service) *Auth {
 	audienceLength = len(config.App.AllowedAudiences)
 
 	return &Auth{
@@ -33,35 +32,35 @@ func (a *Auth) Handler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var r = response.Ctx(c)
 		var err error
-		var token = new(user.User)
+		var token = new(authType.User)
 
 		if a.config.Debug.Enabled {
-			token, err = a.authService.AuthFromToken(schema.JWTAccessToken, "")
+			token, err = a.authService.AuthFromToken(authType.JWTAccessToken, "")
 			if err != nil {
 				return r.Error(err).Send()
 			}
 
-			c.Locals(consts.AuthMiddlewareKey, token)
+			c.Locals(constants.AuthMiddlewareKey, token)
 
 			return c.Next()
 		}
 
-		authorization := c.Get(consts.AuthHeader)
+		authorization := c.Get(constants.AuthHeader)
 
 		if authorization == "" {
-			return r.Error(consts.ErrJWTFormatError).Send()
+			return r.Error(constants.ErrJWTFormatError).Send()
 		}
 
 		authSplit := strings.Split(authorization, " ")
 		if len(authSplit) != 2 {
-			return r.Error(consts.ErrJWTFormatError).Send()
+			return r.Error(constants.ErrJWTFormatError).Send()
 		}
 
-		if authSplit[0] != consts.AuthPrefix {
-			return r.Error(consts.ErrNotBearerType).Send()
+		if authSplit[0] != constants.AuthPrefix {
+			return r.Error(constants.ErrNotBearerType).Send()
 		}
 
-		token, err = a.authService.AuthFromToken(schema.JWTIDToken, authSplit[1])
+		token, err = a.authService.AuthFromToken(authType.JWTIDToken, authSplit[1])
 
 		if err != nil {
 			return r.Error(err).Status(http.StatusUnauthorized).Send()
@@ -74,11 +73,11 @@ func (a *Auth) Handler() fiber.Handler {
 		if audienceLength > 0 {
 			// 检测 aud
 			if !slices.Contains(a.config.App.AllowedAudiences, token.Token.Aud) {
-				return r.Error(consts.ErrNotValidToken).Send()
+				return r.Error(constants.ErrNotValidToken).Send()
 			}
 		}
 
-		c.Locals(consts.AuthMiddlewareKey, token)
+		c.Locals(constants.AuthMiddlewareKey, token)
 
 		return c.Next()
 	}

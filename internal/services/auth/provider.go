@@ -3,7 +3,7 @@ package auth
 import (
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
-	"go-template/internal/service/jwks"
+	"go-template/internal/services/jwks"
 )
 
 type Service struct {

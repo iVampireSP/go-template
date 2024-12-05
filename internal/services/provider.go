@@ -1,10 +1,10 @@
-package service
+package services
 
 import (
 	"go-template/internal/base/logger"
-	"go-template/internal/service/auth"
-	"go-template/internal/service/jwks"
-	"go-template/internal/service/stream"
+	"go-template/internal/services/auth"
+	"go-template/internal/services/jwks"
+	"go-template/internal/services/stream"
 
 	"github.com/google/wire"
 )

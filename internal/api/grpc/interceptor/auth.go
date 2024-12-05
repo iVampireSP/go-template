@@ -2,13 +2,13 @@ package interceptor
 
 import (
 	"context"
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
+	authInterceptor "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"go-template/internal/base/conf"
 	"go-template/internal/base/logger"
-	"go-template/internal/consts"
-	"go-template/internal/schema"
-	auth2 "go-template/internal/service/auth"
+	authService "go-template/internal/services/auth"
+	"go-template/internal/types/auth"
+	"go-template/internal/types/constants"
 	"google.golang.org/grpc"
 )
 
@@ -21,13 +21,13 @@ var ignoreAuthApis = map[string]bool{
 }
 
 type Auth struct {
-	authService *auth2.Service
+	authService *authService.Service
 	logger      *logger.Logger
 	config      *conf.Config
 }
 
 func NewAuth(
-	authService *auth2.Service,
+	authService *authService.Service,
 	logger *logger.Logger,
 	config *conf.Config,
 ) *Auth {
@@ -57,7 +57,7 @@ func (a *Auth) authCtx(ctx context.Context) (context.Context, error) {
 	var tokenString string
 	var err error
 
-	tokenString, err = auth.AuthFromMD(ctx, "bearer")
+	tokenString, err = authInterceptor.AuthFromMD(ctx, "bearer")
 	if err != nil {
 		// 如果是调试模式，就不处理报错，并且继续执行
 		if a.config.Debug.Enabled {
@@ -68,17 +68,17 @@ func (a *Auth) authCtx(ctx context.Context) (context.Context, error) {
 		}
 	}
 
-	token, err := a.authService.AuthFromToken(schema.JWTIDToken, tokenString)
+	token, err := a.authService.AuthFromToken(auth.JWTIDToken, tokenString)
 	if err != nil {
 		return nil, err
 	}
 
 	if !token.Valid {
-		return nil, consts.ErrNotValidToken
+		return nil, constants.ErrNotValidToken
 	}
 
-	ctx = logging.InjectFields(ctx, logging.Fields{consts.AuthMiddlewareKey, token.Token.Sub})
-	ctx = context.WithValue(ctx, consts.AuthMiddlewareKey, token)
+	ctx = logging.InjectFields(ctx, logging.Fields{constants.AuthMiddlewareKey, token.Token.Sub})
+	ctx = context.WithValue(ctx, constants.AuthMiddlewareKey, token)
 
 	return ctx, nil
 }

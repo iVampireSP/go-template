@@ -1,8 +1,8 @@
-package consts
+package constants
 
 import (
 	"errors"
-	"go-template/internal/pkg/user"
+	"go-template/internal/types/auth"
 )
 
 const (
@@ -10,7 +10,7 @@ const (
 	AuthPrefix = "Bearer"
 
 	// AnonymousUser 调试模式下的用户
-	AnonymousUser user.Id = "anonymous"
+	AnonymousUser auth.Id = "anonymous"
 
 	AuthMiddlewareKey               = "auth.user"
 	AuthAssistantShareMiddlewareKey = "auth.assistant.share"
