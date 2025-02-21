@@ -3,7 +3,7 @@ package middleware
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"go-template/internal/base/conf"
+	"go-template/internal/infra/conf"
 	"go-template/internal/services/auth"
 	"go-template/internal/types/dto"
 	userPkg "go-template/internal/types/user"

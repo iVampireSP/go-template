@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"go-template/internal/base/conf"
+	"go-template/internal/infra/conf"
 	authService "go-template/internal/services/auth"
 	"go-template/internal/types/constants"
 	"go-template/internal/types/dto"

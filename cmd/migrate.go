@@ -3,17 +3,31 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"go-template/internal/database/migrations"
+	"go-template/migrations"
+	"log"
 	"os"
 	"strings"
 	"time"
 
+	"go-template/ent/migrate"
+	"go-template/internal/infra/orm"
+
+	"ariga.io/atlas/sql/sqltool"
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql/schema"
+	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/cobra"
 )
 
+const migrationPath = "migrations"
+
 func init() {
-	RootCmd.AddCommand(migrateCommand, createGoMigrateCommand)
+	if app.Config.Debug.Enabled {
+		RootCmd.AddCommand(createGoMigrateCommand, createEntMigrateCommand)
+	}
+
+	RootCmd.AddCommand(migrateCommand)
 }
 
 var migrateCommand = &cobra.Command{
@@ -30,7 +44,7 @@ var migrateCommand = &cobra.Command{
 }
 
 var createGoMigrateCommand = &cobra.Command{
-	Use:   "create-migrate",
+	Use:   "create-go-migrate",
 	Short: "create go migration",
 	Long:  "create go migration using goose.",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -40,28 +54,32 @@ var createGoMigrateCommand = &cobra.Command{
 		}
 
 		name := args[0]
-
 		createGooseMigration(name)
+	},
+}
+
+var createEntMigrateCommand = &cobra.Command{
+	Use:   "create-ent-migrate",
+	Short: "create ent migration",
+	Long:  "create ent migration using atlas.",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			_ = cmd.Help()
+			return
+		}
+
+		name := args[0]
+		createEntMigration(name)
 	},
 }
 
 // RunMigrate 为数据库函数
 func RunMigrate(args []string) {
-	app, err := CreateApp()
-	if err != nil {
-		panic(err)
-	}
-
 	migrations.Config = app.Config
 
 	goose.SetBaseFS(migrations.MigrationFS)
 
-	err = goose.SetDialect("postgres")
-	if err != nil {
-		panic(err)
-	}
-
-	db, err := app.GORM.DB()
+	err := goose.SetDialect("postgres")
 	if err != nil {
 		panic(err)
 	}
@@ -73,26 +91,25 @@ func RunMigrate(args []string) {
 		arguments = append(arguments, args[3:]...)
 	}
 
-	err = goose.RunContext(context.Background(), command, db, ".", arguments...)
+	err = goose.RunContext(context.Background(), command, app.DB, ".", arguments...)
 
 	if err != nil {
 		panic(err)
 	}
 
 	defer func() {
-		if err := db.Close(); err != nil {
+		if err := app.DB.Close(); err != nil {
 			panic(err)
 		}
 	}()
 }
 
 func createGooseMigration(name string) {
-	// 在 internal/database/migrations 目录下新建一个迁移文件
+	// 在 migrationPath 目录下新建一个迁移文件
 	// 文件名为 yyyy-mm-dd-hh-mm-ss-<name>.go
 	month := int(time.Now().Month())
 	monthString := fmt.Sprintf("%d", month)
 	if month < 10 {
-		// 转 string
 		monthString = "0" + monthString
 	}
 
@@ -114,7 +131,6 @@ func createGooseMigration(name string) {
 		minuteString = "0" + minuteString
 	}
 
-	// 秒
 	second := time.Now().Second()
 	secondString := fmt.Sprintf("%d", second)
 	if second < 10 {
@@ -125,7 +141,7 @@ func createGooseMigration(name string) {
 	fileName := fmt.Sprintf("%s_%s.go", funcName, name)
 
 	// 模板内容
-	var template = `package migrations
+	var template = `package ` + migrationPath + `
 
 import (
 	"context"
@@ -149,9 +165,43 @@ func Down<FuncName>(ctx context.Context, tx *sql.Tx) error {
 `
 
 	template = strings.ReplaceAll(template, "<FuncName>", funcName+name)
-	err := os.WriteFile("internal/database/migrations/"+fileName, []byte(template), 0644)
+	err := os.WriteFile(migrationPath+"/"+fileName, []byte(template), 0644)
 	if err != nil {
 		panic(fmt.Sprintf("failed creating migration file: %v", err))
 	}
+}
 
+func createEntMigration(name string) {
+	app, err := CreateApp()
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+
+	// 创建一个本地迁移目录，用于理解 goose 迁移文件格式
+	dir, err := sqltool.NewGooseDir(migrationPath)
+	if err != nil {
+		log.Fatalf("创建 atlas 迁移目录失败: %v", err)
+	}
+
+	// 迁移差异选项
+	opts := []schema.MigrateOption{
+		schema.WithDir(dir),                          // 提供迁移目录
+		schema.WithMigrationMode(schema.ModeInspect), // 提供迁移模式
+		schema.WithDialect(dialect.Postgres),         // 使用 PostgreSQL 方言
+		// schema.WithDropColumn(true),                 // 允许删除列
+		// schema.WithDropIndex(true),                  // 允许删除索引
+		// schema.WithForeignKeys(true),                // 处理外键
+		// schema.WithGlobalUniqueID(true),             // 使用全局唯一ID
+	}
+
+	// 构建数据库 DSN
+	dsn := orm.DSNWithDriver(app.Config)
+
+	// 使用 Atlas 为 PostgreSQL 生成迁移文件
+	err = migrate.NamedDiff(ctx, dsn, name, opts...)
+	if err != nil {
+		log.Fatalf("生成迁移文件失败: %v", err)
+	}
 }

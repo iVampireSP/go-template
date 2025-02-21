@@ -2,8 +2,8 @@ package jwks
 
 import (
 	"errors"
-	"go-template/internal/base/conf"
-	"go-template/internal/base/logger"
+	"go-template/internal/infra/conf"
+	"go-template/internal/infra/logger"
 
 	"github.com/MicahParks/keyfunc/v3"
 	"github.com/golang-jwt/jwt/v5"

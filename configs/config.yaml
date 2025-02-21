@@ -8,26 +8,6 @@ http:
   host: 0.0.0.0
   # the production url
   url: http://127.0.0.1:8080
-  cors:
-    enabled: true
-    allow_origins:
-      - "http://localhost:8080"
-    allow_methods:
-      - "GET"
-      - "HEAD"
-      - "PUT"
-      - "PATCH"
-      - "POST"
-      - "DELETE"
-    allow_headers:
-      - "Origin"
-      - "Content-Length"
-      - "Content-Type"
-      - "X-Requested-With"
-      - "Authorization"
-    allow_credentials: true
-    expose_headers: [ ]
-    max_age: 720
 
 grpc:
   address: 0.0.0.0:9090
@@ -50,9 +30,6 @@ redis:
   port: 6379
   password: ""
   db: 0
-
-jwks:
-  url: "https://auth.leaflow.cn/.well-known/jwks"
 
 metrics:
   enabled: true

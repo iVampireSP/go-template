@@ -14,16 +14,15 @@ import (
 	"go-template/internal/api/grpc/v1/documents"
 	"go-template/internal/api/http"
 	"go-template/internal/api/http/v1"
-	"go-template/internal/base"
-	"go-template/internal/base/conf"
-	"go-template/internal/base/logger"
-	"go-template/internal/base/milvus"
-	"go-template/internal/base/orm"
-	"go-template/internal/base/redis"
-	"go-template/internal/base/s3"
-	"go-template/internal/base/server"
 	"go-template/internal/batch"
-	"go-template/internal/dao"
+	"go-template/internal/infra"
+	"go-template/internal/infra/conf"
+	"go-template/internal/infra/logger"
+	"go-template/internal/infra/milvus"
+	"go-template/internal/infra/orm"
+	"go-template/internal/infra/redis"
+	"go-template/internal/infra/s3"
+	"go-template/internal/infra/server"
 	"go-template/internal/router"
 	"go-template/internal/services"
 	"go-template/internal/services/auth"
@@ -31,9 +30,13 @@ import (
 	"go-template/internal/services/stream"
 )
 
+import (
+	_ "github.com/lib/pq"
+)
+
 // Injectors from wire.go:
 
-func CreateApp() (*base.Application, error) {
+func CreateApp() (*infra.Application, error) {
 	config := conf.NewConfig()
 	loggerLogger := logger.NewZapLogger(config)
 	jwksJWKS := jwks.NewJWKS(config, loggerLogger)
@@ -44,9 +47,8 @@ func CreateApp() (*base.Application, error) {
 	routerApi := router.NewApiRoute(handlers, middleware)
 	swaggerRouter := router.NewSwaggerRoute()
 	httpServer := server.NewHTTPServer(config, routerApi, swaggerRouter, middleware, loggerLogger)
-	db := orm.NewGORM(config, loggerLogger)
-	query := dao.NewQuery(db)
-	handler := documents.NewHandler(query)
+	client := orm.NewEnt(config)
+	handler := documents.NewHandler(client)
 	interceptorAuth := interceptor.NewAuth(service, loggerLogger, config)
 	interceptorLogger := interceptor.NewLogger(loggerLogger)
 	grpcInterceptor := grpc.NewInterceptor(interceptorAuth, interceptorLogger)
@@ -57,11 +59,11 @@ func CreateApp() (*base.Application, error) {
 	redisRedis := redis.NewRedis(config)
 	batchBatch := batch.NewBatch(loggerLogger)
 	s3S3 := s3.NewS3(config)
-	client := milvus.NewService(config, loggerLogger)
-	application := base.NewApplication(config, httpServer, apiApi, loggerLogger, servicesService, redisRedis, batchBatch, s3S3, db, query, client)
+	db := orm.NewSqlDB(config)
+	application := infra.NewApplication(config, httpServer, apiApi, loggerLogger, servicesService, redisRedis, batchBatch, s3S3, client, db)
 	return application, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(conf.NewConfig, logger.NewZapLogger, orm.NewGORM, dao.NewQuery, redis.NewRedis, s3.NewS3, milvus.NewService, batch.NewBatch, services.Provide, api.Provide, router.Provide, server.NewHTTPServer, base.NewApplication)
+var ProviderSet = wire.NewSet(conf.NewConfig, logger.NewZapLogger, orm.ProviderSet, redis.NewRedis, s3.NewS3, milvus.NewService, batch.NewBatch, services.Provide, api.Provide, router.Provide, server.NewHTTPServer, infra.NewApplication)

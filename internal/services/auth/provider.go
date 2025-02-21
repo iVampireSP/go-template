@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"go-template/internal/base/conf"
-	"go-template/internal/base/logger"
+	"go-template/internal/infra/conf"
+	"go-template/internal/infra/logger"
 	"go-template/internal/services/jwks"
 )
 

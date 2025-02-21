@@ -1,7 +1,7 @@
 package stream
 
 import (
-	"go-template/internal/base/conf"
+	"go-template/internal/infra/conf"
 )
 
 type Service struct {

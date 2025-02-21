@@ -1,7 +1,7 @@
 package services
 
 import (
-	"go-template/internal/base/logger"
+	"go-template/internal/infra/logger"
 	"go-template/internal/services/auth"
 	"go-template/internal/services/jwks"
 	"go-template/internal/services/stream"

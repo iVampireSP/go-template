@@ -1,7 +1,7 @@
 package batch
 
 import (
-	"go-template/internal/base/logger"
+	"go-template/internal/infra/logger"
 )
 
 type Batch struct {
@@ -11,6 +11,6 @@ type Batch struct {
 func NewBatch(
 	logger *logger.Logger,
 ) *Batch {
-	//base.NewApplication()
+	//infra.NewApplication()
 	return &Batch{logger}
 }

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"go-template/internal/base"
+	"go-template/internal/infra"
 
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,7 @@ var scheduleCmd = &cobra.Command{
 	},
 }
 
-func runSchedule(app *base.Application) {
+func runSchedule(app *infra.Application) {
 	// var wg sync.WaitGroup
 
 	// var ctx = context.Background()

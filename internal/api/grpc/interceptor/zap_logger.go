@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
-	"go-template/internal/base/logger"
+	"go-template/internal/infra/logger"
 	"go.uber.org/zap"
 )
 

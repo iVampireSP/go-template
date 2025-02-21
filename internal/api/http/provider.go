@@ -5,8 +5,8 @@ import (
 	"github.com/google/wire"
 	"go-template/internal/api/http/middleware"
 	"go-template/internal/api/http/v1"
-	"go-template/internal/base/conf"
-	"go-template/internal/base/logger"
+	"go-template/internal/infra/conf"
+	"go-template/internal/infra/logger"
 	"go-template/internal/services/auth"
 )
 

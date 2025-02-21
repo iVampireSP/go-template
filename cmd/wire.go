@@ -4,40 +4,47 @@
 package cmd
 
 import (
+	"github.com/google/wire"
 	"go-template/internal/api"
-	"go-template/internal/base"
-	"go-template/internal/base/conf"
-	"go-template/internal/base/logger"
-	"go-template/internal/base/milvus"
-	"go-template/internal/base/orm"
-	"go-template/internal/base/redis"
-	"go-template/internal/base/s3"
-	"go-template/internal/base/server"
 	"go-template/internal/batch"
-	"go-template/internal/dao"
+	"go-template/internal/infra"
+	"go-template/internal/infra/conf"
+	"go-template/internal/infra/logger"
+	"go-template/internal/infra/milvus"
+	"go-template/internal/infra/orm"
+	"go-template/internal/infra/redis"
+	"go-template/internal/infra/s3"
+	"go-template/internal/infra/server"
 	"go-template/internal/router"
 	"go-template/internal/services"
-
-	"github.com/google/wire"
 )
 
 var ProviderSet = wire.NewSet(
+	// Infra Layer
 	conf.NewConfig,
 	logger.NewZapLogger,
-	orm.NewGORM,
-	dao.NewQuery,
+	orm.ProviderSet,
 	redis.NewRedis,
 	s3.NewS3,
+	//stream.NewStream,
 	milvus.NewService,
 	batch.NewBatch,
+
+	// Internal Layer
 	services.Provide,
+
+	//events.NewEvent,
+
+	// API Layer
 	api.Provide,
 	router.Provide,
 	server.NewHTTPServer,
-	base.NewApplication,
+
+	// Application
+	infra.NewApplication,
 )
 
-func CreateApp() (*base.Application, error) {
+func CreateApp() (*infra.Application, error) {
 	wire.Build(ProviderSet)
 
 	return nil, nil
