@@ -52,7 +52,7 @@ func NewConfig() *Config {
 	if path == "" {
 		panic("config file not found, created on app root.")
 	} else {
-		println("config file found:", path)
+		println("config file found at:", path)
 	}
 
 	c := &Config{}

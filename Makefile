@@ -12,12 +12,6 @@ install-deps:
 gen:
 	go generate ./...
 
-swag:
-	swag init -g main.go --parseDependency
-
-#gorm:
-#	cd hack/gorm-gen && go run .
-
 buf:
 	buf dep update
 

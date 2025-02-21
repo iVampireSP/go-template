@@ -9,26 +9,23 @@ import (
 	"go-template/internal/infra/logger"
 	"go-template/internal/infra/redis"
 	"go-template/internal/infra/s3"
-	"go-template/internal/infra/server"
 	"go-template/internal/services"
 )
 
 type Application struct {
-	Config     *conf.Config
-	Logger     *logger.Logger
-	Api        *api.Api
-	HttpServer *server.HttpServer
-	Service    *services.Service
-	Redis      *redis.Redis
-	Batch      *batch.Batch
-	S3         *s3.S3
-	Ent        *ent.Client
-	DB         *sql.DB
+	Config  *conf.Config
+	Logger  *logger.Logger
+	Api     *api.Api
+	Service *services.Service
+	Redis   *redis.Redis
+	Batch   *batch.Batch
+	S3      *s3.S3
+	Ent     *ent.Client
+	DB      *sql.DB
 }
 
 func NewApplication(
 	config *conf.Config,
-	httpServer *server.HttpServer,
 	api *api.Api,
 	logger *logger.Logger,
 	services *services.Service,
@@ -39,15 +36,14 @@ func NewApplication(
 	db *sql.DB,
 ) *Application {
 	return &Application{
-		Config:     config,
-		HttpServer: httpServer,
-		Api:        api,
-		Logger:     logger,
-		Service:    services,
-		Redis:      redis,
-		Batch:      batch,
-		S3:         s3,
-		Ent:        ent,
-		DB:         db,
+		Config:  config,
+		Api:     api,
+		Logger:  logger,
+		Service: services,
+		Redis:   redis,
+		Batch:   batch,
+		S3:      s3,
+		Ent:     ent,
+		DB:      db,
 	}
 }

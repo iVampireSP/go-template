@@ -1,17 +1,6 @@
-app:
-  name: template
-  allowed_audiences:
-    - "1" # UserLand Personal Access Client
-
-http:
-  port: 8080
+listen:
   host: 0.0.0.0
-  # the production url
-  url: http://127.0.0.1:8080
-
-grpc:
-  address: 0.0.0.0:9090
-  address_gateway: 0.0.0.0:9091
+  port: 8080
 
 debug:
   enabled: false
@@ -31,11 +20,6 @@ redis:
   password: ""
   db: 0
 
-metrics:
-  enabled: true
-  port: 8081
-  host: 0.0.0.0
-
 s3:
   endpoint: 127.0.0.1:9000
   external_endpoint: 127.0.0.1:9000
@@ -44,7 +28,6 @@ s3:
   bucket: amber
   use_ssl: false
   region:
-
 
 kafka:
   bootstrap_servers:
@@ -62,6 +45,3 @@ milvus:
   document_collection: documents
   user:
   password:
-
-third_party:
-  openai_api_key: ""

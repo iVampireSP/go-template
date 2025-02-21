@@ -50,7 +50,6 @@ func (s *Service) Consumer(topic string, groupId string) *kafka.Reader {
 	}
 
 	return kafka.NewReader(r)
-
 }
 
 type HandlerFunc func([]byte)

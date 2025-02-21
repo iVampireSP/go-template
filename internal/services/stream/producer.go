@@ -2,9 +2,11 @@ package stream
 
 import (
 	"context"
-	"github.com/segmentio/kafka-go"
-	"go-template/internal/types/events"
 	"time"
+
+	"github.com/bytedance/sonic"
+
+	"github.com/segmentio/kafka-go"
 )
 
 //var connections = map[string]*kafka.Conn{}
@@ -20,7 +22,7 @@ import (
 //
 //	conn, err := kafka.DialLeader(ctx, "tcp", s.config.Kafka.BootstrapServers[0], s.topic(topic), 0)
 //	if err != nil {
-//		return nil, err
+//		return nil, errs.WrapError(err)
 //	}
 //	//err = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 //	//if err != nil {
@@ -100,8 +102,8 @@ func (s *Service) SendMessage(ctx context.Context, topic string, data []byte) er
 	return err
 }
 
-func (s *Service) SendEvent(ctx context.Context, topic string, data events.EventMessage) error {
-	j, err := data.JSON()
+func (s *Service) SendEvent(ctx context.Context, topic string, data any) error {
+	j, err := sonic.Marshal(data)
 	if err != nil {
 		return err
 	}
