@@ -1,0 +1,5 @@
+name: ${APP_NAME:-Cloud}
+env: ${APP_ENV:-development}
+debug: ${APP_DEBUG:-false}
+locale: ${APP_LOCALE:-en}
+fallback_locale: ${APP_FALLBACK_LOCALE:-en}

@@ -1,0 +1,8 @@
+app:
+  host: ${DB_HOST:-localhost}
+  port: ${DB_PORT:-4000}
+  user: ${DB_USER:-root}
+  password: ${DB_PASSWORD:-}
+  name: ${DB_NAME:-cloud}
+  sslmode: ${DB_SSLMODE:-disable}
+  timezone: ${DB_TIMEZONE:-Asia/Shanghai}

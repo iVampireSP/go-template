@@ -1,0 +1,40 @@
+cors:
+  enabled: ${HTTP_CORS_ENABLED:-true}
+  allowed_origins:
+    - ${HTTP_CORS_ORIGIN:-"*"}
+  allow_methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allow_headers:
+    - Origin
+    - Content-Type
+    - Accept
+    - Authorization
+    - X-Requested-With
+  allow_credentials: ${HTTP_CORS_CREDENTIALS:-true}
+  max_age: ${HTTP_CORS_MAX_AGE:-86400}
+
+
+admin_api:
+  enabled: ${HTTP_ADMIN_API_ENABLED:-true}
+  host: ${HTTP_ADMIN_API_HOST:-0.0.0.0}
+  port: ${HTTP_ADMIN_API_PORT:-8080}
+
+api:
+  enabled: ${HTTP_API_ENABLED:-true}
+  host: ${HTTP_API_HOST:-0.0.0.0}
+  port: ${HTTP_API_PORT:-8080}
+
+llm_api:
+  enabled: ${HTTP_LLM_API_ENABLED:-true}
+  host: ${HTTP_LLM_API_HOST:-0.0.0.0}
+  port: ${HTTP_LLM_API_PORT:-8082}
+
+collect:
+  enabled: ${HTTP_COLLECT_ENABLED:-true}
+  host: ${HTTP_COLLECT_HOST:-0.0.0.0}
+  port: ${HTTP_COLLECT_PORT:-9091}

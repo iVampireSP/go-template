@@ -1,0 +1,105 @@
+subject:
+  verification_code: "验证您的邮箱"
+  password_reset: "重置您的密码"
+  welcome: "欢迎加入 Leaflow"
+  ticket_created: "工单已创建"
+  ticket_reply: "您的工单有新回复"
+  ticket_status_changed: "您的工单状态已更新"
+  email_change: "确认更换邮箱"
+  account_deletion: "确认注销账号"
+  account_locked: "您的账户已被临时锁定"
+  mfa_recovery_used: "已使用恢复码登录 - 请重新启用两步验证"
+  two_factor_disabled: "两步验证已关闭"
+
+footer: "这是一封自动发送的邮件，请勿直接回复。"
+
+verification:
+  greeting: "您好！"
+  message: "您正在验证您的邮箱地址，请点击下方按钮完成验证："
+  button: "立即验证邮箱"
+  expiry: "此验证链接将在"
+  expiry_unit: "分钟后过期"
+  link_fallback: "如果按钮无法点击，请复制以下链接到浏览器打开："
+  ignore: "如果您没有请求此验证，请忽略此邮件。您的账户安全不会受到影响。"
+
+password_reset:
+  greeting: "您好！"
+  message: "我们收到了重置您账户密码的请求。点击下方按钮重置密码："
+  button: "重置密码"
+  expiry: "此链接将在"
+  expiry_unit: "分钟后过期"
+  link_fallback: "如果按钮无法点击，请复制以下链接到浏览器："
+  ignore: "如果您没有请求重置密码，请忽略此邮件。您的密码不会被更改。"
+
+welcome:
+  greeting: "您好，"
+  message: "感谢您注册 Leaflow 账户。我们很高兴您加入我们的社区！"
+  getting_started: "开始使用："
+  step1: "完善您的个人资料"
+  step2: "探索我们的服务"
+  step3: "如有问题，随时联系我们的支持团队"
+  support: "如果您有任何问题，请随时联系我们的客服团队。"
+
+ticket:
+  created_title: "工单已创建"
+  greeting: "您好，"
+  created_message: "您的工单已成功创建。"
+  id: "工单编号"
+  subject_label: "主题"
+  status_label: "状态"
+  priority_label: "优先级"
+  created_thank_you: "我们将尽快回复您。"
+  reply_title: "工单有新回复"
+  reply_message: "您的工单收到了新回复。"
+  reply_label: "回复内容"
+  reply_action: "请登录查看完整内容。"
+  status_updated_title: "工单状态已更新"
+  status_updated_message: "您的工单状态已更新。"
+  new_status_label: "新状态"
+
+email_change:
+  greeting: "您好！"
+  message: "您申请更换邮箱地址，请点击下方按钮确认："
+  button: "确认更换邮箱"
+  expiry: "此链接将在"
+  expiry_unit: "分钟后过期"
+  link_fallback: "如果按钮无法点击，请复制以下链接到浏览器打开："
+  ignore: "如果您未申请更换邮箱，请忽略此邮件。您的邮箱地址不会被修改。"
+
+account_deletion:
+  greeting: "您好！"
+  message: "您申请注销账号，此操作不可撤销。请点击下方按钮确认："
+  button: "确认注销账号"
+  expiry: "此链接将在"
+  expiry_unit: "分钟后过期"
+  link_fallback: "如果按钮无法点击，请复制以下链接到浏览器打开："
+  ignore: "如果您未申请注销账号，请忽略此邮件。您的账号不会被删除。"
+
+account_locked:
+  greeting: "您好！"
+  message: "由于多次登录失败，您的账户已被临时锁定。请在 30 分钟后重试。"
+  tip: "如果这不是您本人的操作，建议账户解锁后立即修改密码。"
+
+mfa_recovery_used:
+  greeting: "您好！"
+  message: "刚才有人使用恢复码登录了您的账户。如果是您本人操作，请尽快重新启用两步验证以保障账户安全。"
+  tip: "如果不是您本人操作，请立即修改密码并联系客服。"
+
+two_factor_disabled:
+  greeting: "您好！"
+  message: "您账户的两步验证（2FA）已被关闭。如果这是您本人的操作，无需理会此邮件。"
+  tip: "如果您未进行此操作，请立即登录账户修改密码并重新启用两步验证，或联系客服寻求帮助。"
+
+# Ticket status values
+status:
+  open: "待处理"
+  in_progress: "处理中"
+  resolved: "已解决"
+  closed: "已关闭"
+
+# Ticket priority values
+priority:
+  low: "低"
+  medium: "中"
+  high: "高"
+  critical: "紧急"

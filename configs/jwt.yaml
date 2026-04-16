@@ -1,0 +1,4 @@
+expires_in: ${JWT_EXPIRES_IN:-86400}
+
+# 密钥名称，引用 keystore.yaml 中定义的密钥
+key: rsa

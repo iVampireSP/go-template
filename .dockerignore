@@ -1,0 +1,49 @@
+# VCS and CI metadata
+.git/
+.github/
+.gitea_old/
+
+# Local IDE/assistant metadata
+.idea/
+.vscode/
+.claude/
+.specify/
+.devcontainer/
+
+# Build artifacts and local binaries
+build/
+bin/
+cloud
+cloud.exe
+
+# Runtime data and local state
+tmp/
+logs/
+data/
+docker-data/
+
+# Local-only directories not needed in image build context
+docs/
+plan/
+e2e/
+docker/
+
+# Coverage and debug outputs
+*.log
+*.out
+coverage/
+coverage.out
+cover_*.out
+
+# Sensitive files
+*.key
+*.pem
+*.crt
+.env
+.env.local
+.env.*
+!.env.example
+.DS_Store
+
+# Node modules (if any frontend code is present)
+node_modules/

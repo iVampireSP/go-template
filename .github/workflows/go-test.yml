@@ -1,0 +1,29 @@
+name: Go Test (Reusable)
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Test
+    runs-on: leaflow-cloud
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure C compiler for CGO
+        run: |
+          if ! command -v gcc &>/dev/null; then
+            sudo apt-get update && sudo apt-get install -y gcc
+          fi
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false # Self-hosted runner uses local GOCACHE/GOMODCACHE
+
+      - name: Run tests
+        run: CGO_ENABLED=1 go test -race ./...

@@ -1,0 +1,105 @@
+subject:
+  verification_code: "Verify Your Email"
+  password_reset: "Reset Your Password"
+  welcome: "Welcome to Leaflow"
+  ticket_created: "Ticket Created"
+  ticket_reply: "New Reply on Your Ticket"
+  ticket_status_changed: "Your Ticket Status Has Changed"
+  email_change: "Confirm Email Change"
+  account_deletion: "Confirm Account Deletion"
+  account_locked: "Your Account Has Been Temporarily Locked"
+  mfa_recovery_used: "Recovery Code Used - Please Re-enable 2FA"
+  two_factor_disabled: "Two-Factor Authentication Disabled"
+
+footer: "This is an automated email, please do not reply directly."
+
+verification:
+  greeting: "Hello!"
+  message: "You are verifying your email address. Please click the button below to complete verification:"
+  button: "Verify Email"
+  expiry: "This verification link will expire in"
+  expiry_unit: "minutes"
+  link_fallback: "If the button doesn't work, copy the link below into your browser:"
+  ignore: "If you didn't request this verification, please ignore this email. Your account security will not be affected."
+
+password_reset:
+  greeting: "Hello!"
+  message: "We received a request to reset your account password. Click the button below to reset it:"
+  button: "Reset Password"
+  expiry: "This link will expire in"
+  expiry_unit: "minutes"
+  link_fallback: "If the button doesn't work, copy the link below into your browser:"
+  ignore: "If you didn't request a password reset, please ignore this email. Your password will not be changed."
+
+welcome:
+  greeting: "Hello,"
+  message: "Thank you for registering a Leaflow account. We are glad to have you in our community!"
+  getting_started: "Getting Started:"
+  step1: "Complete your profile"
+  step2: "Explore our services"
+  step3: "Contact our support team if you have any questions"
+  support: "If you have any questions, please feel free to contact our support team."
+
+ticket:
+  created_title: "Ticket Created"
+  greeting: "Hello,"
+  created_message: "Your ticket has been successfully created."
+  id: "Ticket ID"
+  subject_label: "Subject"
+  status_label: "Status"
+  priority_label: "Priority"
+  created_thank_you: "We will reply soon."
+  reply_title: "New Reply on Ticket"
+  reply_message: "Your ticket has received a new reply."
+  reply_label: "Reply"
+  reply_action: "Please log in to view the full content."
+  status_updated_title: "Ticket Status Updated"
+  status_updated_message: "Your ticket status has been updated."
+  new_status_label: "New Status"
+
+email_change:
+  greeting: "Hello!"
+  message: "You've requested to change your email address. Click the button below to confirm:"
+  button: "Confirm Email Change"
+  expiry: "This link will expire in"
+  expiry_unit: "minutes"
+  link_fallback: "If the button doesn't work, copy the link below into your browser:"
+  ignore: "If you didn't request this change, you can ignore this email. Your email address will not be changed."
+
+account_deletion:
+  greeting: "Hello!"
+  message: "You've requested to delete your account. This action is irreversible. Click the button below to confirm:"
+  button: "Confirm Account Deletion"
+  expiry: "This link will expire in"
+  expiry_unit: "minutes"
+  link_fallback: "If the button doesn't work, copy the link below into your browser:"
+  ignore: "If you didn't request this, please ignore this email. Your account will not be deleted."
+
+account_locked:
+  greeting: "Hello!"
+  message: "Your account has been temporarily locked due to multiple failed login attempts. Please try again in 30 minutes."
+  tip: "If this wasn't you, we recommend changing your password immediately after unlocking your account."
+
+mfa_recovery_used:
+  greeting: "Hello!"
+  message: "A recovery code was just used to sign in to your account. If this was you, please re-enable two-factor authentication as soon as possible to keep your account secure."
+  tip: "If you did not sign in, your account may be compromised. Please change your password immediately and contact support."
+
+two_factor_disabled:
+  greeting: "Hello!"
+  message: "Two-factor authentication (2FA) has been disabled on your account. If you made this change, no action is needed."
+  tip: "If you did not disable 2FA, your account may be compromised. Please sign in immediately, change your password, and re-enable two-factor authentication. Contact support if you need help."
+
+# Ticket status values
+status:
+  open: "Pending"
+  in_progress: "In Progress"
+  resolved: "Resolved"
+  closed: "Closed"
+
+# Ticket priority values
+priority:
+  low: "Low"
+  medium: "Medium"
+  high: "High"
+  critical: "Critical"

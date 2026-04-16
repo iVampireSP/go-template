@@ -1,0 +1,9 @@
+# 单机模式配置
+host: ${REDIS_HOST:-localhost}
+port: ${REDIS_PORT:-6379}
+password: "${REDIS_PASSWORD:-}"
+db: ${REDIS_DB:-0}
+
+# 集群模式配置 (逗号分隔的节点地址，如: "node1:6379,node2:6379,node3:6379")
+# 设置此项后将启用集群模式，忽略 host/port/db
+cluster_addrs: ${REDIS_CLUSTER_ADDRS:-}

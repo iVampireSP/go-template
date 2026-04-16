@@ -1,0 +1,15 @@
+enabled: ${TRACING_ENABLED:-false}
+endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:-localhost:4317}
+sample_ratio: ${OTEL_TRACES_SAMPLE_RATIO:-1.0}
+query_url: ${TRACING_QUERY_URL:-http://localhost:16686}
+query_username: ${TRACING_QUERY_USERNAME:-}
+query_password: ${TRACING_QUERY_PASSWORD:-}
+query_timeout: ${TRACING_QUERY_TIMEOUT:-15s}
+diagnose:
+  user_allowed_services:
+    - cloud-user-api
+    - cloud-llm-api
+  admin_allowed_services:
+    - cloud-admin-api
+    - cloud-user-api
+    - cloud-llm-api

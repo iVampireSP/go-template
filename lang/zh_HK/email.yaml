@@ -1,0 +1,99 @@
+subject:
+  verification_code: "驗證您的電郵"
+  password_reset: "重置您的密碼"
+  welcome: "歡迎加入 Leaflow"
+  ticket_created: "工單已建立"
+  ticket_reply: "您的工單有新回覆"
+  ticket_status_changed: "您的工單狀態已更新"
+  email_change: "確認更換電郵"
+  account_deletion: "確認註銷帳戶"
+  account_locked: "您的帳戶已被暫時鎖定"
+  mfa_recovery_used: "已使用復原碼登入 - 請重新啟用兩步驗證"
+
+footer: "這是一封自動發送的郵件，請勿直接回覆。"
+
+verification:
+  greeting: "您好！"
+  message: "您正在驗證您的電郵地址，請點擊下方按鈕完成驗證："
+  button: "立即驗證電郵"
+  expiry: "此驗證連結將在"
+  expiry_unit: "分鐘後過期"
+  link_fallback: "如果按鈕無法點擊，請複製以下連結到瀏覽器開啟："
+  ignore: "如果您沒有請求此驗證，請忽略此郵件。您的帳戶安全不會受到影響。"
+
+password_reset:
+  greeting: "您好！"
+  message: "我們收到了重置您帳戶密碼的請求。點擊下方按鈕重置密碼："
+  button: "重置密碼"
+  expiry: "此連結將在"
+  expiry_unit: "分鐘後過期"
+  link_fallback: "如果按鈕無法點擊，請複製以下連結到瀏覽器："
+  ignore: "如果您沒有請求重置密碼，請忽略此郵件。您的密碼不會被更改。"
+
+welcome:
+  greeting: "您好，"
+  message: "感謝您註冊 Leaflow 帳戶。很高興您加入我們的社群！"
+  getting_started: "開始使用："
+  step1: "完善您的個人資料"
+  step2: "探索我們的服務"
+  step3: "如有問題，隨時聯絡我們的支援團隊"
+  support: "如果您有任何問題，請隨時聯絡我們的客服團隊。"
+
+ticket:
+  created_title: "工單已建立"
+  greeting: "您好，"
+  created_message: "您的工單已成功建立。"
+  id: "工單編號"
+  subject_label: "主題"
+  status_label: "狀態"
+  priority_label: "優先級"
+  created_thank_you: "我們將盡快回覆您。"
+  reply_title: "工單有新回覆"
+  reply_message: "您的工單收到了新回覆。"
+  reply_label: "回覆內容"
+  reply_action: "請登入查看完整內容。"
+  status_updated_title: "工單狀態已更新"
+  status_updated_message: "您的工單狀態已更新。"
+  new_status_label: "新狀態"
+
+email_change:
+  greeting: "您好！"
+  message: "您申請更換電郵地址，請點擊下方按鈕確認："
+  button: "確認更換電郵"
+  expiry: "此連結將在"
+  expiry_unit: "分鐘後過期"
+  link_fallback: "如果按鈕無法點擊，請複製以下連結到瀏覽器開啟："
+  ignore: "如果您未申請更換電郵，請忽略此郵件。您的電郵地址不會被修改。"
+
+account_deletion:
+  greeting: "您好！"
+  message: "您申請註銷帳戶，此操作不可撤銷。請點擊下方按鈕確認："
+  button: "確認註銷帳戶"
+  expiry: "此連結將在"
+  expiry_unit: "分鐘後過期"
+  link_fallback: "如果按鈕無法點擊，請複製以下連結到瀏覽器開啟："
+  ignore: "如果您未申請註銷帳戶，請忽略此郵件。您的帳戶不會被刪除。"
+
+account_locked:
+  greeting: "您好！"
+  message: "由於多次登入失敗，您的帳戶已被暫時鎖定。請在 30 分鐘後重試。"
+  tip: "如果這不是您本人的操作，建議帳戶解鎖後立即修改密碼。"
+
+mfa_recovery_used:
+  greeting: "您好！"
+  message: "剛才有人使用復原碼登入了您的帳戶。如果是您本人操作，請盡快重新啟用兩步驗證以保障帳戶安全。"
+  tip: "如果不是您本人操作，請立即修改密碼並聯絡客服。"
+
+# Ticket status values
+status:
+  open: "待處理"
+  in_progress: "處理中"
+  resolved: "已解決"
+  closed: "已關閉"
+
+# Ticket priority values
+priority:
+  low: "低"
+  medium: "中"
+  high: "高"
+  critical: "緊急"
