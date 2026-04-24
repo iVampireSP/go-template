@@ -68,7 +68,7 @@ func WithGroupID(groupID string) ConsumerOption {
 }
 
 // newClient 从配置创建 Kafka 客户端
-func newClient(cfg *config) *kafkaClient {
+func newClient(cfg *Config) *kafkaClient {
 	defaultTopic, err := cfg.TopicName(TopicDefault)
 	if err != nil {
 		panic(err)

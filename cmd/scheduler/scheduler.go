@@ -9,13 +9,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/iVampireSP/go-template/internal/infra/cache"
 	"github.com/iVampireSP/go-template/internal/infra/config"
-	jobqueue "github.com/iVampireSP/go-template/internal/infra/queue"
 	"github.com/iVampireSP/go-template/internal/infra/tracing"
+	"github.com/iVampireSP/go-template/internal/infra/cache"
+	jobqueue "github.com/iVampireSP/go-template/internal/infra/queue"
+	"github.com/iVampireSP/go-template/pkg/foundation/schedule"
 	"github.com/iVampireSP/go-template/pkg/httpserver"
 	"github.com/iVampireSP/go-template/pkg/logger"
-	"github.com/iVampireSP/go-template/pkg/schedule"
 
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
@@ -56,7 +56,7 @@ func (s *Scheduler) Handle(cmd *cobra.Command) error {
 
 	ctx := cmd.Context()
 
-	tp, err := tracing.GetService("app-scheduler")
+	tp, err := tracing.GetService("foundation-scheduler")
 	if err != nil {
 		return err
 	}

@@ -8,5 +8,5 @@ func newRouter() *Router {
 }
 
 func (r *Router) JobQueue(name string) string {
-	return "app-default"
+	return "foundation-default"
 }

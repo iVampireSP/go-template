@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	jobqueue "github.com/iVampireSP/go-template/internal/infra/queue"
+	jobqueue "github.com/iVampireSP/go-template/pkg/foundation/queue"
 	"github.com/spf13/cobra"
 )
 

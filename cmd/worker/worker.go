@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/iVampireSP/go-template/internal/infra/config"
-	jobqueue "github.com/iVampireSP/go-template/internal/infra/queue"
 	"github.com/iVampireSP/go-template/internal/infra/tracing"
 	"github.com/iVampireSP/go-template/internal/job"
+	jobqueue "github.com/iVampireSP/go-template/pkg/foundation/queue"
 	"github.com/iVampireSP/go-template/pkg/httpserver"
 	"github.com/iVampireSP/go-template/pkg/logger"
 
@@ -42,7 +42,7 @@ func (w *Worker) Handle(cmd *cobra.Command) error {
 	ctx, cancel := context.WithCancel(cmd.Context())
 	defer cancel()
 
-	tp, err := tracing.GetService("app-worker")
+	tp, err := tracing.GetService("foundation-worker")
 	if err != nil {
 		return err
 	}

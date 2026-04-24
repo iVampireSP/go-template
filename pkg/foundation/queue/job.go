@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	infraconfig "github.com/iVampireSP/go-template/internal/infra/config"
 	"github.com/iVampireSP/go-template/pkg/cerr"
 	"github.com/iVampireSP/go-template/pkg/logger"
 	"github.com/hibiken/asynq"
@@ -27,7 +26,8 @@ var (
 
 type Queue struct {
 	router   *Router
-	cfg      *config
+	cfg      Config
+	redisCfg RedisConfig
 	tracker  *tracker
 	client   *asynq.Client
 	server   *asynq.Server
@@ -37,10 +37,10 @@ type Queue struct {
 	running  bool
 }
 
-func NewQueue(redisClient redis.UniversalClient) *Queue {
-	cfg := loadConfig()
+// NewQueue 创建任务队列。redisCfg 用于 asynq 连接，cfg 控制重试策略，redisClient 用于 tracker。
+func NewQueue(redisCfg RedisConfig, cfg Config, redisClient redis.UniversalClient) *Queue {
 	router := newRouter()
-	client := asynq.NewClient(asynqRedisConnOpt())
+	client := asynq.NewClient(buildAsynqRedisConnOpt(redisCfg))
 
 	var t *tracker
 	if redisClient != nil {
@@ -50,6 +50,7 @@ func NewQueue(redisClient redis.UniversalClient) *Queue {
 	return &Queue{
 		router:   router,
 		cfg:      cfg,
+		redisCfg: redisCfg,
 		tracker:  t,
 		client:   client,
 		handlers: make(map[string]Handler),
@@ -198,7 +199,7 @@ func (q *Queue) Run(ctx context.Context) error {
 		queues[queueName] = 1
 	}
 
-	q.server = asynq.NewServer(asynqRedisConnOpt(), asynq.Config{
+	q.server = asynq.NewServer(buildAsynqRedisConnOpt(q.redisCfg), asynq.Config{
 		Concurrency:    16,
 		Queues:         queues,
 		RetryDelayFunc: q.retryDelay,
@@ -400,25 +401,27 @@ func (q *Queue) resolveQueue(name string, j Job) string {
 	return q.router.JobQueue(name)
 }
 
-func asynqRedisConnOpt() asynq.RedisConnOpt {
-	clusterAddresses := infraconfig.String("redis.cluster_addrs")
-	password := infraconfig.String("redis.password")
-
-	if clusterAddresses != "" {
+func buildAsynqRedisConnOpt(cfg RedisConfig) asynq.RedisConnOpt {
+	if cfg.ClusterAddrs != "" {
 		return asynq.RedisClusterClientOpt{
-			Addrs:    parseRedisClusterAddresses(clusterAddresses),
-			Password: password,
+			Addrs:    parseRedisClusterAddresses(cfg.ClusterAddrs),
+			Password: cfg.Password,
 		}
 	}
 
-	host := infraconfig.String("redis.host", "localhost")
-	port := infraconfig.Int("redis.port", 6379)
-	db := infraconfig.Int("redis.db", 0)
+	host := cfg.Host
+	if host == "" {
+		host = "localhost"
+	}
+	port := cfg.Port
+	if port == 0 {
+		port = 6379
+	}
 
 	return asynq.RedisClientOpt{
 		Addr:     fmt.Sprintf("%s:%d", host, port),
-		Password: password,
-		DB:       db,
+		Password: cfg.Password,
+		DB:       cfg.DB,
 	}
 }
 

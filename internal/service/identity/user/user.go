@@ -8,8 +8,8 @@ import (
 
 	"github.com/iVampireSP/go-template/ent"
 	entuser "github.com/iVampireSP/go-template/ent/user"
-	"github.com/iVampireSP/go-template/internal/infra/cache"
 	"github.com/iVampireSP/go-template/internal/infra/jwt"
+	"github.com/iVampireSP/go-template/internal/infra/cache"
 	"github.com/iVampireSP/go-template/pkg/json"
 	"github.com/iVampireSP/go-template/pkg/paginator"
 	"github.com/redis/go-redis/v9"
@@ -343,6 +343,22 @@ func (s *User) List(ctx context.Context, input UserListInput) ([]*ent.User, int,
 		return nil, 0, err
 	}
 	return users, total, nil
+}
+
+// CleanupUnverified 清理注册超过 olderThan 时间未验证邮箱的用户（硬删除）。
+func (s *User) CleanupUnverified(ctx context.Context, olderThan time.Duration) (int, error) {
+	cutoff := time.Now().Add(-olderThan)
+	affected, err := s.client.User.Delete().
+		Where(
+			entuser.EmailVerifiedEQ(false),
+			entuser.CreatedAtLT(cutoff),
+			entuser.DeletedAtIsNil(),
+		).
+		Exec(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("failed to clean unverified users: %w", err)
+	}
+	return affected, nil
 }
 
 // ==================== 内部方法 ====================

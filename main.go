@@ -16,22 +16,27 @@ import (
 	v1handler "github.com/iVampireSP/go-template/internal/api/user/v1/handler"
 	v1route "github.com/iVampireSP/go-template/internal/api/user/v1/route"
 	wellknownhandler "github.com/iVampireSP/go-template/internal/api/wellknown/handler"
-	"github.com/iVampireSP/go-template/internal/infra/bus"
+	cronjobuser "github.com/iVampireSP/go-template/internal/cronjob/user"
 	"github.com/iVampireSP/go-template/internal/infra/cache"
 	"github.com/iVampireSP/go-template/internal/infra/cron"
 	"github.com/iVampireSP/go-template/internal/infra/jwt"
 	"github.com/iVampireSP/go-template/internal/infra/keystore"
 	"github.com/iVampireSP/go-template/internal/infra/orm"
 	"github.com/iVampireSP/go-template/internal/infra/queue"
+	"github.com/iVampireSP/go-template/internal/job"
+	"github.com/iVampireSP/go-template/internal/job/mail"
+	"github.com/iVampireSP/go-template/internal/listener/example"
 	"github.com/iVampireSP/go-template/internal/service/identity/admin"
 	"github.com/iVampireSP/go-template/internal/service/identity/user"
+	"github.com/iVampireSP/go-template/pkg/foundation/bus"
+	"github.com/iVampireSP/go-template/pkg/foundation/schedule"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"
 )
 
 func main() {
-	root := &cobra.Command{Use: "app", Short: "App", Long: "Go Project Template"}
+	root := &cobra.Command{Use: "foundation", Short: "Foundation", Long: "Go Project Template"}
 
 	type initFunc func(cmd, top *cobra.Command) (func(), error)
 	initFuncs := make(map[*cobra.Command]initFunc)
@@ -115,9 +120,10 @@ func main() {
 }
 
 func initEventbus(cmd, top *cobra.Command) (func(), error) {
-	busSvc := bus.NewBus()
+	listeners := make([]bus.Listener, 0, 1)
+	listeners = append(listeners, example.NewListener())
 
-	real := eventbuscmd.NewEventBus(busSvc, nil /* unresolved: bus.Listener */)
+	real := eventbuscmd.NewEventBus(nil /* unresolved: *bus.Bus */, listeners)
 	realCmd := real.Command()
 	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
 	swapRunE(cmd, top, realCmd)
@@ -144,13 +150,30 @@ func initMigrate(cmd, top *cobra.Command) (func(), error) {
 }
 
 func initScheduler(cmd, top *cobra.Command) (func(), error) {
+	entClient := orm.NewORM()
+
 	redisUniversalClient, cacheLocker := cache.New()
+
+	keyStore, err := keystore.NewKeyStore()
+	if err != nil {
+		return nil, fmt.Errorf("keystore.NewKeyStore: %w", err)
+	}
+
+	jwtSvc, err := jwt.NewJWT(keyStore)
+	if err != nil {
+		return nil, fmt.Errorf("jwt.NewJWT: %w", err)
+	}
 
 	queueSvc := queue.NewQueue(redisUniversalClient)
 
+	userSvc := user.NewUser(entClient, jwtSvc, cacheLocker, redisUniversalClient)
+
 	cronSvc := cron.NewCron()
 
-	real := schedulercmd.NewScheduler(cronSvc, cacheLocker, queueSvc, nil /* unresolved: schedule.CronJob */)
+	cronJobs := make([]schedule.CronJob, 0, 1)
+	cronJobs = append(cronJobs, cronjobuser.NewCleanUnverified(userSvc))
+
+	real := schedulercmd.NewScheduler(cronSvc, cacheLocker, queueSvc, cronJobs)
 	realCmd := real.Command()
 	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
 	swapRunE(cmd, top, realCmd)
@@ -161,6 +184,9 @@ func initScheduler(cmd, top *cobra.Command) (func(), error) {
 		}
 		if redisUniversalClient != nil {
 			redisUniversalClient.Close()
+		}
+		if entClient != nil {
+			entClient.Close()
 		}
 	}, nil
 }
@@ -257,20 +283,15 @@ func initUser(cmd, top *cobra.Command) (func(), error) {
 }
 
 func initWorker(cmd, top *cobra.Command) (func(), error) {
-	redisUniversalClient, _ := cache.New()
+	handlers := make([]job.Handler, 0, 1)
+	handlers = append(handlers, mail.NewHandler(nil /* missing: *email.Email */))
 
-	queueSvc := queue.NewQueue(redisUniversalClient)
-
-	real := workercmd.NewWorker(queueSvc, nil /* unresolved: job.Handler */)
+	real := workercmd.NewWorker(nil /* unresolved: *queue.Queue */, handlers)
 	realCmd := real.Command()
 	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
 	swapRunE(cmd, top, realCmd)
 
-	return func() {
-		if redisUniversalClient != nil {
-			redisUniversalClient.Close()
-		}
-	}, nil
+	return nil, nil
 }
 
 // wireRunE connects a handler method to a subcommand's RunE by kebab-case name.

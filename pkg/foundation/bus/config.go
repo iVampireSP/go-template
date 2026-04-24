@@ -4,26 +4,27 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-
-	infraconfig "github.com/iVampireSP/go-template/internal/infra/config"
 )
 
-type config struct {
-	BootstrapServers []string                  `yaml:"bootstrap_servers"`
-	GroupID          string                    `yaml:"group_id"`
-	Topics           map[string]topicConfig    `yaml:"topics"`
-	Consumers        map[string]consumerConfig `yaml:"consumers"`
+// Config 事件总线配置，由外部传入。
+type Config struct {
+	BootstrapServers []string                    `yaml:"bootstrap_servers"`
+	GroupID          string                      `yaml:"group_id"`
+	Topics           map[string]TopicConfig      `yaml:"topics"`
+	Consumers        map[string]ConsumerConfig   `yaml:"consumers"`
 
 	topics map[TopicID]topic
 }
 
-type topicConfig struct {
+// TopicConfig 单个 topic 配置。
+type TopicConfig struct {
 	Name              string `yaml:"name"`
 	Partitions        int    `yaml:"partitions"`
 	ReplicationFactor int    `yaml:"replication_factor"`
 }
 
-type consumerConfig struct {
+// ConsumerConfig 消费者组配置。
+type ConsumerConfig struct {
 	Topics []TopicID `yaml:"topics"`
 }
 
@@ -33,20 +34,8 @@ type topic struct {
 	ReplicationFactor int
 }
 
-func loadConfig() (*config, error) {
-	var cfg config
-	if err := infraconfig.Unmarshal("bus", &cfg); err != nil {
-		return nil, fmt.Errorf("load bus config failed: %w", err)
-	}
-
-	if err := cfg.validate(); err != nil {
-		return nil, err
-	}
-
-	return &cfg, nil
-}
-
-func (c *config) validate() error {
+// Validate 校验配置完整性。
+func (c *Config) Validate() error {
 	if c == nil {
 		return fmt.Errorf("bus config is nil")
 	}
@@ -117,7 +106,7 @@ func (c *config) validate() error {
 	return nil
 }
 
-func (c *config) TopicName(topicID TopicID) (string, error) {
+func (c *Config) TopicName(topicID TopicID) (string, error) {
 	if c == nil {
 		return "", fmt.Errorf("bus config is nil")
 	}
@@ -127,15 +116,15 @@ func (c *config) TopicName(topicID TopicID) (string, error) {
 		return "", fmt.Errorf("topic id is required")
 	}
 
-	topic, ok := c.topics[topicID]
+	t, ok := c.topics[topicID]
 	if !ok {
 		return "", fmt.Errorf("undefined bus topic id: %s", topicID)
 	}
 
-	return topic.Name, nil
+	return t.Name, nil
 }
 
-func (c *config) ConsumerTopicNames(consumer string) ([]string, error) {
+func (c *Config) ConsumerTopicNames(consumer string) ([]string, error) {
 	if c == nil {
 		return nil, fmt.Errorf("bus config is nil")
 	}
@@ -162,7 +151,7 @@ func (c *config) ConsumerTopicNames(consumer string) ([]string, error) {
 	return rawTopics, nil
 }
 
-func (c *config) TopicsForProvision() []topic {
+func (c *Config) TopicsForProvision() []topic {
 	if c == nil {
 		return nil
 	}

@@ -1,0 +1,23 @@
+{{define "subject"}}{{t "email.subject.welcome"}}{{end}}
+{{define "title"}}{{t "email.subject.welcome"}}{{end}}
+
+{{define "content"}}
+<p>{{t "email.welcome.greeting"}} {{.DisplayName}}!</p>
+
+<p>{{t "email.welcome.message"}}</p>
+
+<div class="info">
+    <p><strong>{{t "email.welcome.getting_started"}}</strong></p>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>{{t "email.welcome.step1"}}</li>
+        <li>{{t "email.welcome.step2"}}</li>
+        <li>{{t "email.welcome.step3"}}</li>
+    </ul>
+</div>
+
+<hr>
+
+<p style="color: #6b7280; font-size: 14px;">
+    {{t "email.welcome.support"}}
+</p>
+{{end}}

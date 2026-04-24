@@ -1,0 +1,6 @@
+host: ${MAIL_HOST:-mailhog}
+port: ${MAIL_PORT:-1025}
+username: ${MAIL_USERNAME:-}
+password: ${MAIL_PASSWORD:-}
+from: ${MAIL_FROM:-noreply@example.com}
+encryption: ${MAIL_ENCRYPTION:-none}

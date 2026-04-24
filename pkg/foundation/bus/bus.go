@@ -7,24 +7,24 @@ import (
 type Bus struct {
 	pub  *publisher
 	cons *consumer
-	cfg  *config
+	cfg  *Config
 }
 
-func NewBus() *Bus {
-	cfg, err := loadConfig()
-	if err != nil {
-		panic(err)
+// NewBus 从配置创建事件总线。
+func NewBus(cfg Config) (*Bus, error) {
+	if err := cfg.Validate(); err != nil {
+		return nil, err
 	}
 
-	client := newClient(cfg)
+	client := newClient(&cfg)
 	pub := newPublisher(client)
 	cons := newConsumer(client, pub)
 	cons.use(recovery(), logging())
 	return &Bus{
 		pub:  pub,
 		cons: cons,
-		cfg:  cfg,
-	}
+		cfg:  &cfg,
+	}, nil
 }
 
 func (b *Bus) Publish(ctx context.Context, event Event) error {

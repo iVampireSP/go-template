@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/iVampireSP/go-template/internal/infra/bus"
 	"github.com/iVampireSP/go-template/internal/infra/config"
 	"github.com/iVampireSP/go-template/internal/infra/tracing"
+	"github.com/iVampireSP/go-template/pkg/foundation/bus"
 	"github.com/iVampireSP/go-template/pkg/httpserver"
 	"github.com/iVampireSP/go-template/pkg/logger"
 	"github.com/spf13/cobra"
@@ -47,7 +47,7 @@ func (e *EventBus) Handle(cmd *cobra.Command) error {
 	ctx, cancel := context.WithCancel(cmd.Context())
 	defer cancel()
 
-	tp, err := tracing.GetService("app-eventbus")
+	tp, err := tracing.GetService("foundation-eventbus")
 	if err != nil {
 		return err
 	}

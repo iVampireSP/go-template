@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
 )
 
 // clientIPKey is the context key for storing the resolved client IP.
@@ -23,13 +22,9 @@ type RealIPConfig struct {
 	AllowedHeaders []string `yaml:"headers"`
 }
 
-// DefaultRealIPConfig returns configuration loaded from http.real_ip config.
+// DefaultRealIPConfig returns sensible defaults for trusted proxy resolution.
 func DefaultRealIPConfig() RealIPConfig {
-	cfg := RealIPConfig{
-		AllowedHeaders: config.Strings("trustedproxy.headers"),
-	}
-
-	cfg.TrustedProxies = config.Strings("trustedproxy.proxies")
+	cfg := RealIPConfig{}
 
 	if len(cfg.AllowedHeaders) == 0 {
 		cfg.AllowedHeaders = []string{
