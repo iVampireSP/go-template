@@ -8,10 +8,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
-	"github.com/iVampireSP/go-template/internal/infra/tracing"
 	"github.com/iVampireSP/go-template/internal/job"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	jobqueue "github.com/iVampireSP/go-template/pkg/foundation/queue"
+	"github.com/iVampireSP/go-template/pkg/foundation/tracing"
 	"github.com/iVampireSP/go-template/pkg/httpserver"
 	"github.com/iVampireSP/go-template/pkg/logger"
 

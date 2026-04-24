@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
-	"github.com/iVampireSP/go-template/internal/infra/tracing"
 	"github.com/iVampireSP/go-template/pkg/foundation/bus"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
+	"github.com/iVampireSP/go-template/pkg/foundation/tracing"
 	"github.com/iVampireSP/go-template/pkg/httpserver"
 	"github.com/iVampireSP/go-template/pkg/logger"
 	"github.com/spf13/cobra"

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	"github.com/iVampireSP/go-template/pkg/json"
 )
 

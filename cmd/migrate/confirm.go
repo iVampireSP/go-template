@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
 )
 
 // confirmDangerousOperation prompts for confirmation in non-development environments.

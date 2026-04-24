@@ -4,9 +4,9 @@ import (
 	"errors"
 	"io"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
-	"github.com/iVampireSP/go-template/internal/infra/i18n"
-	"github.com/iVampireSP/go-template/internal/infra/tracing"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
+	"github.com/iVampireSP/go-template/pkg/foundation/i18n"
+	"github.com/iVampireSP/go-template/pkg/foundation/tracing"
 	"github.com/iVampireSP/go-template/pkg/httpserver"
 	"github.com/iVampireSP/go-template/pkg/version"
 	"github.com/spf13/cobra"

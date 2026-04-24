@@ -8,8 +8,8 @@ import (
 
 	"github.com/iVampireSP/go-template/ent"
 	entuser "github.com/iVampireSP/go-template/ent/user"
-	"github.com/iVampireSP/go-template/internal/infra/jwt"
-	"github.com/iVampireSP/go-template/internal/infra/cache"
+	"github.com/iVampireSP/go-template/pkg/foundation/lock"
+	"github.com/iVampireSP/go-template/pkg/foundation/jwt"
 	"github.com/iVampireSP/go-template/pkg/json"
 	"github.com/iVampireSP/go-template/pkg/paginator"
 	"github.com/redis/go-redis/v9"
@@ -29,7 +29,7 @@ const (
 type User struct {
 	client *ent.Client
 	jwt    *jwt.JWT
-	locker *cache.Locker
+	locker *lock.Locker
 	redis  redis.UniversalClient
 }
 
@@ -37,7 +37,7 @@ type User struct {
 func NewUser(
 	client *ent.Client,
 	jwtSvc *jwt.JWT,
-	locker *cache.Locker,
+	locker *lock.Locker,
 	redisClient redis.UniversalClient,
 ) *User {
 	return &User{

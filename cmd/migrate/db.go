@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	"github.com/pressly/goose/v3"
 )
 

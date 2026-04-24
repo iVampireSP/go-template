@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"strings"
 
-	"github.com/iVampireSP/go-template/internal/infra/cache"
+	"github.com/iVampireSP/go-template/pkg/foundation/lock"
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/cobra"
 )
@@ -30,11 +30,11 @@ func MustInitWithFS(migrationsFS embed.FS) {
 
 // Migrate provides database migration commands.
 type Migrate struct {
-	locker *cache.Locker
+	locker *lock.Locker
 }
 
 // NewMigrate creates a new Migrate command group.
-func NewMigrate(locker *cache.Locker) *Migrate {
+func NewMigrate(locker *lock.Locker) *Migrate {
 	return &Migrate{
 		locker: locker,
 	}

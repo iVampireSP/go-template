@@ -10,7 +10,7 @@ import (
 
 	"github.com/iVampireSP/go-template/pkg/json"
 
-	"github.com/iVampireSP/go-template/internal/infra/jwt"
+	"github.com/iVampireSP/go-template/pkg/foundation/jwt"
 )
 
 // JWKSHandler handles JWKS (JSON Web Key Set) request.

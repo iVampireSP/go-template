@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
-	"github.com/iVampireSP/go-template/internal/infra/jwt"
 	"github.com/iVampireSP/go-template/pkg/cerr"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
+	"github.com/iVampireSP/go-template/pkg/foundation/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 

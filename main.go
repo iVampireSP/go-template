@@ -16,20 +16,24 @@ import (
 	v1handler "github.com/iVampireSP/go-template/internal/api/user/v1/handler"
 	v1route "github.com/iVampireSP/go-template/internal/api/user/v1/route"
 	wellknownhandler "github.com/iVampireSP/go-template/internal/api/wellknown/handler"
+	"github.com/iVampireSP/go-template/internal/bootstrap"
 	cronjobuser "github.com/iVampireSP/go-template/internal/cronjob/user"
-	"github.com/iVampireSP/go-template/internal/infra/cache"
-	"github.com/iVampireSP/go-template/internal/infra/cron"
-	"github.com/iVampireSP/go-template/internal/infra/jwt"
-	"github.com/iVampireSP/go-template/internal/infra/keystore"
-	"github.com/iVampireSP/go-template/internal/infra/orm"
-	"github.com/iVampireSP/go-template/internal/infra/queue"
 	"github.com/iVampireSP/go-template/internal/job"
 	"github.com/iVampireSP/go-template/internal/job/mail"
 	"github.com/iVampireSP/go-template/internal/listener/example"
 	"github.com/iVampireSP/go-template/internal/service/identity/admin"
 	"github.com/iVampireSP/go-template/internal/service/identity/user"
 	"github.com/iVampireSP/go-template/pkg/foundation/bus"
+	"github.com/iVampireSP/go-template/pkg/foundation/cache"
+	"github.com/iVampireSP/go-template/pkg/foundation/cron"
+	"github.com/iVampireSP/go-template/pkg/foundation/email"
+	"github.com/iVampireSP/go-template/pkg/foundation/jwt"
+	"github.com/iVampireSP/go-template/pkg/foundation/keystore"
+	"github.com/iVampireSP/go-template/pkg/foundation/lock"
+	"github.com/iVampireSP/go-template/pkg/foundation/orm"
+	"github.com/iVampireSP/go-template/pkg/foundation/queue"
 	"github.com/iVampireSP/go-template/pkg/foundation/schedule"
+	"github.com/iVampireSP/go-template/pkg/logger"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"
@@ -120,10 +124,17 @@ func main() {
 }
 
 func initEventbus(cmd, top *cobra.Command) (func(), error) {
+	busConfig := bootstrap.NewBusConfig()
+
+	busSvc, err := bus.NewBus(busConfig)
+	if err != nil {
+		return nil, fmt.Errorf("bus.NewBus: %w", err)
+	}
+
 	listeners := make([]bus.Listener, 0, 1)
 	listeners = append(listeners, example.NewListener())
 
-	real := eventbuscmd.NewEventBus(nil /* unresolved: *bus.Bus */, listeners)
+	real := eventbuscmd.NewEventBus(busSvc, listeners)
 	realCmd := real.Command()
 	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
 	swapRunE(cmd, top, realCmd)
@@ -132,9 +143,17 @@ func initEventbus(cmd, top *cobra.Command) (func(), error) {
 }
 
 func initMigrate(cmd, top *cobra.Command) (func(), error) {
-	redisUniversalClient, cacheLocker := cache.New()
+	cacheRedisConfig := bootstrap.NewRedisConfig()
 
-	real := migratecmd.NewMigrate(cacheLocker)
+	loggerConfig := bootstrap.NewLoggerConfig()
+
+	_, _, zapSugaredLogger := logger.NewLogger(loggerConfig)
+
+	redisUniversalClient := cache.New(cacheRedisConfig, zapSugaredLogger)
+
+	locker := lock.NewLocker(redisUniversalClient)
+
+	real := migratecmd.NewMigrate(locker)
 	tree := real.Command()
 	wireRunE(tree, "down", real.Down)
 	wireRunE(tree, "fresh", real.Fresh)
@@ -152,8 +171,6 @@ func initMigrate(cmd, top *cobra.Command) (func(), error) {
 func initScheduler(cmd, top *cobra.Command) (func(), error) {
 	entClient := orm.NewORM()
 
-	redisUniversalClient, cacheLocker := cache.New()
-
 	keyStore, err := keystore.NewKeyStore()
 	if err != nil {
 		return nil, fmt.Errorf("keystore.NewKeyStore: %w", err)
@@ -164,16 +181,30 @@ func initScheduler(cmd, top *cobra.Command) (func(), error) {
 		return nil, fmt.Errorf("jwt.NewJWT: %w", err)
 	}
 
-	queueSvc := queue.NewQueue(redisUniversalClient)
+	cacheRedisConfig := bootstrap.NewRedisConfig()
 
-	userSvc := user.NewUser(entClient, jwtSvc, cacheLocker, redisUniversalClient)
+	loggerConfig := bootstrap.NewLoggerConfig()
 
-	cronSvc := cron.NewCron()
+	_, _, zapSugaredLogger := logger.NewLogger(loggerConfig)
+
+	redisUniversalClient := cache.New(cacheRedisConfig, zapSugaredLogger)
+
+	locker := lock.NewLocker(redisUniversalClient)
+
+	userSvc := user.NewUser(entClient, jwtSvc, locker, redisUniversalClient)
+
+	queueRedisConfig := bootstrap.NewQueueRedisConfig()
+
+	queueConfig := bootstrap.NewQueueConfig()
+
+	queueSvc := queue.NewQueue(queueRedisConfig, queueConfig, redisUniversalClient)
+
+	cronSvc := cron.New()
 
 	cronJobs := make([]schedule.CronJob, 0, 1)
 	cronJobs = append(cronJobs, cronjobuser.NewCleanUnverified(userSvc))
 
-	real := schedulercmd.NewScheduler(cronSvc, cacheLocker, queueSvc, cronJobs)
+	real := schedulercmd.NewScheduler(cronSvc, locker, queueSvc, cronJobs)
 	realCmd := real.Command()
 	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
 	swapRunE(cmd, top, realCmd)
@@ -206,11 +237,19 @@ func initServe(cmd, top *cobra.Command) (func(), error) {
 
 	adminSvc := admin.NewAdmin(jwtSvc)
 
-	redisUniversalClient, cacheLocker := cache.New()
+	cacheRedisConfig := bootstrap.NewRedisConfig()
+
+	loggerConfig := bootstrap.NewLoggerConfig()
+
+	_, _, zapSugaredLogger := logger.NewLogger(loggerConfig)
+
+	redisUniversalClient := cache.New(cacheRedisConfig, zapSugaredLogger)
 
 	handlerAuthHandler := handler.NewAuthHandler(adminSvc, redisUniversalClient)
 
-	userSvc := user.NewUser(entClient, jwtSvc, cacheLocker, redisUniversalClient)
+	locker := lock.NewLocker(redisUniversalClient)
+
+	userSvc := user.NewUser(entClient, jwtSvc, locker, redisUniversalClient)
 
 	handlerUserHandler := handler.NewUserHandler(userSvc)
 
@@ -253,8 +292,6 @@ func initServe(cmd, top *cobra.Command) (func(), error) {
 func initUser(cmd, top *cobra.Command) (func(), error) {
 	entClient := orm.NewORM()
 
-	redisUniversalClient, cacheLocker := cache.New()
-
 	keyStore, err := keystore.NewKeyStore()
 	if err != nil {
 		return nil, fmt.Errorf("keystore.NewKeyStore: %w", err)
@@ -265,7 +302,17 @@ func initUser(cmd, top *cobra.Command) (func(), error) {
 		return nil, fmt.Errorf("jwt.NewJWT: %w", err)
 	}
 
-	userSvc := user.NewUser(entClient, jwtSvc, cacheLocker, redisUniversalClient)
+	cacheRedisConfig := bootstrap.NewRedisConfig()
+
+	loggerConfig := bootstrap.NewLoggerConfig()
+
+	_, _, zapSugaredLogger := logger.NewLogger(loggerConfig)
+
+	redisUniversalClient := cache.New(cacheRedisConfig, zapSugaredLogger)
+
+	locker := lock.NewLocker(redisUniversalClient)
+
+	userSvc := user.NewUser(entClient, jwtSvc, locker, redisUniversalClient)
 
 	real := usercmd.NewUser(userSvc)
 	tree := real.Command()
@@ -283,15 +330,37 @@ func initUser(cmd, top *cobra.Command) (func(), error) {
 }
 
 func initWorker(cmd, top *cobra.Command) (func(), error) {
-	handlers := make([]job.Handler, 0, 1)
-	handlers = append(handlers, mail.NewHandler(nil /* missing: *email.Email */))
+	emailConfig := bootstrap.NewEmailConfig()
 
-	real := workercmd.NewWorker(nil /* unresolved: *queue.Queue */, handlers)
+	emailSvc := email.NewEmail(emailConfig)
+
+	queueRedisConfig := bootstrap.NewQueueRedisConfig()
+
+	queueConfig := bootstrap.NewQueueConfig()
+
+	cacheRedisConfig := bootstrap.NewRedisConfig()
+
+	loggerConfig := bootstrap.NewLoggerConfig()
+
+	_, _, zapSugaredLogger := logger.NewLogger(loggerConfig)
+
+	redisUniversalClient := cache.New(cacheRedisConfig, zapSugaredLogger)
+
+	queueSvc := queue.NewQueue(queueRedisConfig, queueConfig, redisUniversalClient)
+
+	handlers := make([]job.Handler, 0, 1)
+	handlers = append(handlers, mail.NewHandler(emailSvc))
+
+	real := workercmd.NewWorker(queueSvc, handlers)
 	realCmd := real.Command()
 	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
 	swapRunE(cmd, top, realCmd)
 
-	return nil, nil
+	return func() {
+		if redisUniversalClient != nil {
+			redisUniversalClient.Close()
+		}
+	}, nil
 }
 
 // wireRunE connects a handler method to a subcommand's RunE by kebab-case name.

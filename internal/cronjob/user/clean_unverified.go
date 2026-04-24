@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
 	usersvc "github.com/iVampireSP/go-template/internal/service/identity/user"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	"github.com/iVampireSP/go-template/pkg/foundation/schedule"
 	"github.com/iVampireSP/go-template/pkg/logger"
 )

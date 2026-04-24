@@ -4,9 +4,9 @@ import (
 	"embed"
 
 	migratecmd "github.com/iVampireSP/go-template/cmd/migrate"
-	"github.com/iVampireSP/go-template/internal/infra/config"
-	"github.com/iVampireSP/go-template/internal/infra/i18n"
-	"github.com/iVampireSP/go-template/internal/infra/tmpl"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
+	"github.com/iVampireSP/go-template/pkg/foundation/i18n"
+	"github.com/iVampireSP/go-template/pkg/foundation/tmpl"
 )
 
 //go:embed configs/*.yaml

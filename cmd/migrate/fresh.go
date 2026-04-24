@@ -3,7 +3,7 @@ package migrate
 import (
 	"fmt"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/cobra"
 )

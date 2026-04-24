@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/iVampireSP/go-template/internal/infra/config"
-	"github.com/iVampireSP/go-template/internal/infra/tracing"
-	"github.com/iVampireSP/go-template/internal/infra/cache"
-	jobqueue "github.com/iVampireSP/go-template/internal/infra/queue"
+	"github.com/iVampireSP/go-template/pkg/foundation/lock"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
+	jobqueue "github.com/iVampireSP/go-template/pkg/foundation/queue"
 	"github.com/iVampireSP/go-template/pkg/foundation/schedule"
+	"github.com/iVampireSP/go-template/pkg/foundation/tracing"
 	"github.com/iVampireSP/go-template/pkg/httpserver"
 	"github.com/iVampireSP/go-template/pkg/logger"
 
@@ -24,13 +24,13 @@ import (
 // Scheduler holds Scheduler service dependencies.
 type Scheduler struct {
 	cron     *cron.Cron
-	locker   *cache.Locker
+	locker   *lock.Locker
 	mq       *jobqueue.Queue
 	cronjobs []schedule.CronJob
 }
 
 // NewScheduler declares Scheduler command dependencies.
-func NewScheduler(cron *cron.Cron, locker *cache.Locker, mq *jobqueue.Queue, cronjobs []schedule.CronJob) *Scheduler {
+func NewScheduler(cron *cron.Cron, locker *lock.Locker, mq *jobqueue.Queue, cronjobs []schedule.CronJob) *Scheduler {
 	return &Scheduler{
 		cron:     cron,
 		locker:   locker,

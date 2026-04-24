@@ -4,7 +4,7 @@ import (
 	adminroutes "github.com/iVampireSP/go-template/internal/api/admin/v1/route"
 	userroutes "github.com/iVampireSP/go-template/internal/api/user/v1/route"
 	wellknownhandler "github.com/iVampireSP/go-template/internal/api/wellknown/handler"
-	"github.com/iVampireSP/go-template/internal/infra/jwt"
+	"github.com/iVampireSP/go-template/pkg/foundation/jwt"
 	"github.com/spf13/cobra"
 )
 
