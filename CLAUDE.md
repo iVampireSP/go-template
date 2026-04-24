@@ -11,6 +11,12 @@ go build ./...                # Build
 go generate ./...             # Run code generation (ent ORM + autodi wiring)
 go run . serve api            # Start User API server
 go run . serve admin          # Start Admin API server
+go run . eventbus             # Start event bus consumer (Kafka)
+go run . worker               # Start background job worker (Asynq/Redis)
+go run . scheduler            # Start cron job scheduler
+go run . scheduler -l         # List all registered cronjobs
+go run . scheduler --once     # Run all jobs once and exit
+go run . eventbus topic create # Create Kafka topics
 ```
 
 ### Database Migrations
@@ -51,10 +57,22 @@ go generate ./generate.go     # Regenerate autodi DI wiring (main.go)
 ### Infrastructure
 
 - `internal/infra/orm/` — ent database client
-- `internal/infra/cache/` — Redis cache
+- `internal/infra/cache/` — Redis cache + distributed locking
 - `internal/infra/jwt/` — JWT token signing
 - `internal/infra/config/` — YAML config loading
 - `internal/infra/tracing/` — OpenTelemetry tracing
+- `internal/infra/bus/` — Event bus (Kafka producer/consumer, DLQ, pattern matching)
+- `internal/infra/queue/` — Job queue (Asynq/Redis, retry, tracking)
+- `internal/infra/cron/` — Cron scheduler (robfig/cron)
+
+### Event-Driven Architecture
+
+- **Event Bus** (`internal/infra/bus/`): Kafka-based pub/sub with pattern matching, DLQ, and middleware
+- **Listeners** (`internal/listener/`): Implement `bus.Listener` interface to react to events
+- **Job Queue** (`internal/infra/queue/`): Redis-backed async job processing with retry, tracking, and idempotency
+- **Job Handlers** (`internal/job/`): Implement `job.Handler` interface for background tasks
+- **Scheduler** (`pkg/schedule/`): Cron-based task scheduling with distributed locking and overlap prevention
+- **CronJobs** (`internal/cronjob/`): Implement `schedule.CronJob` interface for periodic tasks
 
 ### Middleware Groups (User API)
 

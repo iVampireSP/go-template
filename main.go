@@ -4,19 +4,25 @@ package main
 
 import (
 	"fmt"
+	eventbuscmd "github.com/iVampireSP/go-template/cmd/eventbus"
 	migratecmd "github.com/iVampireSP/go-template/cmd/migrate"
+	schedulercmd "github.com/iVampireSP/go-template/cmd/scheduler"
 	servecmd "github.com/iVampireSP/go-template/cmd/serve"
 	usercmd "github.com/iVampireSP/go-template/cmd/user"
 	versioncmd "github.com/iVampireSP/go-template/cmd/version"
+	workercmd "github.com/iVampireSP/go-template/cmd/worker"
 	"github.com/iVampireSP/go-template/internal/api/admin/v1/handler"
 	"github.com/iVampireSP/go-template/internal/api/admin/v1/route"
 	v1handler "github.com/iVampireSP/go-template/internal/api/user/v1/handler"
 	v1route "github.com/iVampireSP/go-template/internal/api/user/v1/route"
 	wellknownhandler "github.com/iVampireSP/go-template/internal/api/wellknown/handler"
+	"github.com/iVampireSP/go-template/internal/infra/bus"
 	"github.com/iVampireSP/go-template/internal/infra/cache"
+	"github.com/iVampireSP/go-template/internal/infra/cron"
 	"github.com/iVampireSP/go-template/internal/infra/jwt"
 	"github.com/iVampireSP/go-template/internal/infra/keystore"
 	"github.com/iVampireSP/go-template/internal/infra/orm"
+	"github.com/iVampireSP/go-template/internal/infra/queue"
 	"github.com/iVampireSP/go-template/internal/service/identity/admin"
 	"github.com/iVampireSP/go-template/internal/service/identity/user"
 	"github.com/spf13/cobra"
@@ -31,6 +37,13 @@ func main() {
 	initFuncs := make(map[*cobra.Command]initFunc)
 
 	{
+		stub := eventbuscmd.NewEventBus(nil, nil)
+		cmd := stub.Command()
+		cmd.RunE = func(c *cobra.Command, _ []string) error { return stub.Handle(c) }
+		root.AddCommand(cmd)
+		initFuncs[cmd] = initEventbus
+	}
+	{
 		stub := migratecmd.NewMigrate(nil)
 		tree := stub.Command()
 		wireRunE(tree, "down", stub.Down)
@@ -39,6 +52,13 @@ func main() {
 		wireRunE(tree, "up", stub.Up)
 		root.AddCommand(tree)
 		initFuncs[tree] = initMigrate
+	}
+	{
+		stub := schedulercmd.NewScheduler(nil, nil, nil, nil)
+		cmd := stub.Command()
+		cmd.RunE = func(c *cobra.Command, _ []string) error { return stub.Handle(c) }
+		root.AddCommand(cmd)
+		initFuncs[cmd] = initScheduler
 	}
 	{
 		stub := servecmd.NewServe(nil, nil, nil, nil, nil)
@@ -60,6 +80,13 @@ func main() {
 		cmd := stub.Command()
 		cmd.RunE = func(c *cobra.Command, _ []string) error { return stub.Handle(c) }
 		root.AddCommand(cmd)
+	}
+	{
+		stub := workercmd.NewWorker(nil, nil)
+		cmd := stub.Command()
+		cmd.RunE = func(c *cobra.Command, _ []string) error { return stub.Handle(c) }
+		root.AddCommand(cmd)
+		initFuncs[cmd] = initWorker
 	}
 
 	var cleanup func()
@@ -87,6 +114,17 @@ func main() {
 	}
 }
 
+func initEventbus(cmd, top *cobra.Command) (func(), error) {
+	busSvc := bus.NewBus()
+
+	real := eventbuscmd.NewEventBus(busSvc, nil /* unresolved: bus.Listener */)
+	realCmd := real.Command()
+	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
+	swapRunE(cmd, top, realCmd)
+
+	return nil, nil
+}
+
 func initMigrate(cmd, top *cobra.Command) (func(), error) {
 	redisUniversalClient, cacheLocker := cache.New()
 
@@ -99,6 +137,28 @@ func initMigrate(cmd, top *cobra.Command) (func(), error) {
 	swapRunE(cmd, top, tree)
 
 	return func() {
+		if redisUniversalClient != nil {
+			redisUniversalClient.Close()
+		}
+	}, nil
+}
+
+func initScheduler(cmd, top *cobra.Command) (func(), error) {
+	redisUniversalClient, cacheLocker := cache.New()
+
+	queueSvc := queue.NewQueue(redisUniversalClient)
+
+	cronSvc := cron.NewCron()
+
+	real := schedulercmd.NewScheduler(cronSvc, cacheLocker, queueSvc, nil /* unresolved: schedule.CronJob */)
+	realCmd := real.Command()
+	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
+	swapRunE(cmd, top, realCmd)
+
+	return func() {
+		if cronSvc != nil {
+			cronSvc.Stop()
+		}
 		if redisUniversalClient != nil {
 			redisUniversalClient.Close()
 		}
@@ -192,6 +252,23 @@ func initUser(cmd, top *cobra.Command) (func(), error) {
 		}
 		if entClient != nil {
 			entClient.Close()
+		}
+	}, nil
+}
+
+func initWorker(cmd, top *cobra.Command) (func(), error) {
+	redisUniversalClient, _ := cache.New()
+
+	queueSvc := queue.NewQueue(redisUniversalClient)
+
+	real := workercmd.NewWorker(queueSvc, nil /* unresolved: job.Handler */)
+	realCmd := real.Command()
+	realCmd.RunE = func(c *cobra.Command, _ []string) error { return real.Handle(c) }
+	swapRunE(cmd, top, realCmd)
+
+	return func() {
+		if redisUniversalClient != nil {
+			redisUniversalClient.Close()
 		}
 	}, nil
 }

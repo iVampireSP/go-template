@@ -1,0 +1,10 @@
+# Job Queue 配置（Asynq）
+
+defaults:
+  max_retry: 5
+  retry_delays:
+    - 1s
+    - 2s
+    - 4s
+    - 8s
+    - 16s

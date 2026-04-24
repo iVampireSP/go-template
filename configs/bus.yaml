@@ -1,0 +1,14 @@
+bootstrap_servers:
+  - ${BUS_BOOTSTRAP_SERVERS:-localhost:9092}
+group_id: ${BUS_GROUP_ID:-app-eventbus-consumer}
+
+topics:
+  default:
+    name: ${BUS_TOPIC_DEFAULT:-app-default}
+    partitions: ${BUS_TOPIC_DEFAULT_PARTITIONS:-1}
+    replication_factor: ${BUS_TOPIC_DEFAULT_REPLICATION_FACTOR:-1}
+
+consumers:
+  eventbus:
+    topics:
+      - default
