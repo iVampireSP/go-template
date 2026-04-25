@@ -31,7 +31,7 @@ func TestInitAndTranslate(t *testing.T) {
 	global = nil
 	mu.Unlock()
 
-	if err := InitWithFS(testFS(), "."); err != nil {
+	if err := InitWithFS(Config{DefaultLocale: "zh_CN", FallbackLocale: "en"}, testFS(), "."); err != nil {
 		t.Fatalf("InitWithFS 失败: %v", err)
 	}
 

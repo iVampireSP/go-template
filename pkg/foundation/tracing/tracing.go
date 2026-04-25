@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	"github.com/iVampireSP/go-template/pkg/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -39,9 +38,9 @@ var (
 	globalTracingOnce sync.Once
 )
 
-func NewTracing() (*Tracing, error) {
+func NewTracing(cfg Config) (*Tracing, error) {
 	globalTracingOnce.Do(func() {
-		globalTracing, globalTracingErr = newTracing()
+		globalTracing, globalTracingErr = newTracing(cfg)
 	})
 	if globalTracingErr != nil {
 		return nil, globalTracingErr
@@ -52,7 +51,7 @@ func NewTracing() (*Tracing, error) {
 	return globalTracing, nil
 }
 
-func newTracing() (*Tracing, error) {
+func newTracing(cfg Config) (*Tracing, error) {
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
 		propagation.TraceContext{},
 		propagation.Baggage{},
@@ -65,22 +64,19 @@ func newTracing() (*Tracing, error) {
 	mp := metric.NewMeterProvider(metric.WithReader(promExporter))
 	otel.SetMeterProvider(mp)
 
-	if !config.Bool("tracing.enabled", false) {
+	if !cfg.Enabled {
 		return nil, ErrTracingDisabled
 	}
 
-	endpoint := config.String("tracing.endpoint", "localhost:4317")
-	sampleRatio := config.GetFloat("tracing.sample_ratio", 1.0)
-
 	exporter, err := otlptracegrpc.New(context.Background(),
-		otlptracegrpc.WithEndpoint(endpoint),
+		otlptracegrpc.WithEndpoint(cfg.Endpoint),
 		otlptracegrpc.WithInsecure(),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	queryBaseURL, err := url.Parse(config.String("tracing.query_url", "http://jaeger-query:16686"))
+	queryBaseURL, err := url.Parse(cfg.QueryURL)
 	if err != nil {
 		return nil, fmt.Errorf("invalid tracing query url: %w", err)
 	}
@@ -91,7 +87,6 @@ func newTracing() (*Tracing, error) {
 		return nil, fmt.Errorf("invalid tracing query url host")
 	}
 
-	queryTimeout := config.Duration("tracing.query_timeout", 15*time.Second)
 	queryTransport := &http.Transport{
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 20,
@@ -100,31 +95,33 @@ func newTracing() (*Tracing, error) {
 
 	t := &Tracing{
 		exporter:      exporter,
-		sampleRatio:   sampleRatio,
+		sampleRatio:   cfg.SampleRatio,
 		providers:     make(map[string]*sdktrace.TracerProvider),
 		queryTraceURL: queryBaseURL.ResolveReference(&url.URL{Path: "/api/traces/"}),
-		queryUsername: config.String("tracing.query_username"),
-		queryPassword: config.String("tracing.query_password"),
+		queryUsername: cfg.QueryUsername,
+		queryPassword: cfg.QueryPassword,
 		queryClient: &http.Client{
-			Timeout:   queryTimeout,
+			Timeout:   cfg.QueryTimeout,
 			Transport: queryTransport,
 		},
 	}
 
-	logger.Info("Tracing enabled", "endpoint", endpoint, "sample_ratio", sampleRatio)
+	logger.Info("Tracing enabled", "endpoint", cfg.Endpoint, "sample_ratio", cfg.SampleRatio)
 
 	return t, nil
 }
 
 func GetService(serviceName string) (*sdktrace.TracerProvider, error) {
-	t, err := NewTracing()
-	if err != nil {
-		if errors.Is(err, ErrTracingDisabled) {
+	if globalTracing == nil {
+		if globalTracingErr != nil && errors.Is(globalTracingErr, ErrTracingDisabled) {
 			return nil, nil
 		}
-		return nil, err
+		if globalTracingErr != nil {
+			return nil, globalTracingErr
+		}
+		return nil, ErrTracingNotInitialized
 	}
-	return t.GetService(serviceName)
+	return globalTracing.GetService(serviceName)
 }
 
 func (t *Tracing) GetService(serviceName string) (*sdktrace.TracerProvider, error) {

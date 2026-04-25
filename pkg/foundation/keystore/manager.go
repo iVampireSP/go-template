@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-
-	"github.com/iVampireSP/go-template/pkg/foundation/config"
 )
 
 // decodeKeyData 自动检测并解码密钥数据
@@ -39,43 +37,32 @@ type KeyStore struct {
 }
 
 // NewKeyStore 从配置创建密钥存储
-func NewKeyStore() (*KeyStore, error) {
+func NewKeyStore(cfg Config) (*KeyStore, error) {
 	ks := &KeyStore{
 		rsa:   make(map[string]*RSAKeyPair),
 		ecdsa: make(map[string]*ECDSAKeyPair),
 	}
 
-	// 加载配置中定义的所有密钥
-	keysConfig := config.Map("keystore.keys")
-	for name, v := range keysConfig {
-		keyConfig, ok := v.(map[string]any)
-		if !ok {
-			continue
-		}
-
-		keyType, _ := keyConfig["type"].(string)
-		if keyType == "" {
+	for name, kc := range cfg.Keys {
+		if kc.Type == "" {
 			return nil, fmt.Errorf("key '%s' missing required 'type' field", name)
 		}
 
-		privateKeyData, _ := keyConfig["private_key"].(string)
-		publicKeyData, _ := keyConfig["public_key"].(string)
-
-		if privateKeyData == "" || publicKeyData == "" {
+		if kc.PrivateKey == "" || kc.PublicKey == "" {
 			continue // 跳过未配置的密钥
 		}
 
-		switch keyType {
+		switch kc.Type {
 		case "rsa":
-			if err := ks.LoadRSA(name, privateKeyData, publicKeyData); err != nil {
+			if err := ks.LoadRSA(name, kc.PrivateKey, kc.PublicKey); err != nil {
 				return nil, fmt.Errorf("failed to load RSA key '%s': %w", name, err)
 			}
 		case "ecdsa":
-			if err := ks.LoadECDSA(name, privateKeyData, publicKeyData); err != nil {
+			if err := ks.LoadECDSA(name, kc.PrivateKey, kc.PublicKey); err != nil {
 				return nil, fmt.Errorf("failed to load ECDSA key '%s': %w", name, err)
 			}
 		default:
-			return nil, fmt.Errorf("unsupported key type '%s' for key '%s'", keyType, name)
+			return nil, fmt.Errorf("unsupported key type '%s' for key '%s'", kc.Type, name)
 		}
 	}
 

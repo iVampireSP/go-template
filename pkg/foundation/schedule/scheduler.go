@@ -25,8 +25,8 @@ type Scheduler struct {
 	running bool
 }
 
-// New 创建新的调度器
-func New(c *cron.Cron, mutex Mutex, q *jobqueue.Queue, rootCmd *cobra.Command) *Scheduler {
+// NewScheduler 创建新的调度器
+func NewScheduler(c *cron.Cron, mutex Mutex, q *jobqueue.Queue, rootCmd *cobra.Command) *Scheduler {
 	return &Scheduler{
 		cron:    c,
 		mutex:   mutex,

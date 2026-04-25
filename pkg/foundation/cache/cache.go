@@ -19,9 +19,9 @@ type RedisConfig struct {
 	ClusterAddrs string // 逗号分隔的集群地址，非空时启用集群模式
 }
 
-// New 根据配置创建 Redis 客户端。
+// NewCache 根据配置创建 Redis 客户端。
 // 支持单机模式和集群模式，通过 ClusterAddrs 是否为空自动选择。
-func New(cfg RedisConfig, logger *zap.SugaredLogger) redis.UniversalClient {
+func NewCache(cfg RedisConfig, logger *zap.SugaredLogger) redis.UniversalClient {
 	var client redis.UniversalClient
 
 	if cfg.ClusterAddrs != "" {

@@ -33,21 +33,7 @@ func main() {
 	}
 
 	rules := []Rule{
-		{Old: module + "/internal/infra/bus", New: module + "/pkg/foundation/bus"},
-		{Old: module + "/internal/infra/queue", New: module + "/pkg/foundation/queue"},
-		{Old: module + "/internal/infra/cache", New: module + "/pkg/foundation/cache"},
-		{Old: module + "/internal/infra/cron", New: module + "/pkg/foundation/cron"},
-		{Old: module + "/internal/infra/email", New: module + "/pkg/foundation/email"},
-		{Old: module + "/internal/infra/config", New: module + "/pkg/foundation/config"},
-		{Old: module + "/internal/infra/cipher", New: module + "/pkg/foundation/cipher"},
-		{Old: module + "/internal/infra/i18n", New: module + "/pkg/foundation/i18n"},
-		{Old: module + "/internal/infra/jwt", New: module + "/pkg/foundation/jwt"},
-		{Old: module + "/internal/infra/keystore", New: module + "/pkg/foundation/keystore"},
-		{Old: module + "/internal/infra/orm", New: module + "/pkg/foundation/orm"},
-		{Old: module + "/internal/infra/tmpl", New: module + "/pkg/foundation/tmpl"},
-		{Old: module + "/internal/infra/tracing", New: module + "/pkg/foundation/tracing"},
-		{Old: module + "/pkg/schedule", New: module + "/pkg/foundation/schedule"},
-		{Old: module + "/pkg/lock", New: module + "/pkg/foundation/lock"},
+		{Old: module + "/internal/job", New: module + "/pkg/foundation/queue/job"},
 	}
 
 	// Step 1: physically move directories

@@ -1,15 +1,29 @@
 package logger
 
 import (
-	"go.uber.org/zap"
+	"github.com/iVampireSP/go-template/pkg/foundation/config"
+	"github.com/iVampireSP/go-template/pkg/foundation/container"
 )
 
-// NewLogger 从配置创建 Logger 实例用于依赖注入。
-// 由外部传入 Config，不再读取全局 config。
-func NewLogger(logConfig Config) (*Logger, *zap.Logger, *zap.SugaredLogger) {
-	logger, sugar := New(logConfig)
-	return &Logger{
-		Sugar:  sugar,
-		Logger: logger,
-	}, logger, sugar
+type Provider struct {
+	app *container.Application
+}
+
+func NewProvider(app *container.Application) *Provider {
+	return &Provider{app: app}
+}
+
+func (p *Provider) Register() {
+	p.app.Singleton(NewDefaultConfig)
+	p.app.Singleton(New)
+}
+
+func (p *Provider) Boot() {}
+
+// NewDefaultConfig returns a logger Config populated from the application config.
+func NewDefaultConfig() Config {
+	return Config{
+		Level: config.String("log.level", "info"),
+		Debug: config.Bool("app.debug", false),
+	}
 }

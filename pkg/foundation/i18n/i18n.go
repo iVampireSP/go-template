@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	"gopkg.in/yaml.v3"
 )
 
@@ -28,8 +27,8 @@ type i18n struct {
 }
 
 // MustInitWithFS 从指定 fs.FS 和目录加载所有语言文件，失败则 panic
-func MustInitWithFS(langFS fs.FS, dir string) {
-	if err := InitWithFS(langFS, dir); err != nil {
+func MustInitWithFS(cfg Config, langFS fs.FS, dir string) {
+	if err := InitWithFS(cfg, langFS, dir); err != nil {
 		panic("i18n: " + err.Error())
 	}
 }
@@ -37,14 +36,14 @@ func MustInitWithFS(langFS fs.FS, dir string) {
 // InitWithFS 从指定 fs.FS 和目录加载所有语言文件
 // 目录结构：dir/{locale}/*.yaml
 // 文件名作为 key 前缀：email.yaml 中的 key "Foo" → "email.Foo"
-func InitWithFS(langFS fs.FS, dir string) error {
+func InitWithFS(cfg Config, langFS fs.FS, dir string) error {
 	mu.Lock()
 	defer mu.Unlock()
 
 	inst := &i18n{
 		locales:        make(map[string]map[string]string),
-		defaultLocale:  config.String("app.locale", "zh_CN"),
-		fallbackLocale: config.String("app.fallback_locale", "en"),
+		defaultLocale:  cfg.DefaultLocale,
+		fallbackLocale: cfg.FallbackLocale,
 	}
 
 	// 枚举 locale 目录
@@ -181,7 +180,7 @@ func DefaultLocale() string {
 	inst := global
 	mu.RUnlock()
 	if inst == nil {
-		return config.String("app.locale", "zh_CN")
+		return "zh_CN"
 	}
 	return inst.defaultLocale
 }
@@ -192,7 +191,7 @@ func FallbackLocale() string {
 	inst := global
 	mu.RUnlock()
 	if inst == nil {
-		return config.String("app.fallback_locale", "en")
+		return "en"
 	}
 	return inst.fallbackLocale
 }

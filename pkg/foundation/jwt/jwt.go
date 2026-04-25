@@ -10,7 +10,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	"github.com/iVampireSP/go-template/pkg/foundation/keystore"
 )
 
@@ -35,19 +34,17 @@ type Claims struct {
 }
 
 // NewJWT 从配置创建 JWT 服务
-func NewJWT(ks *keystore.KeyStore) (*JWT, error) {
-	keyName := config.String("jwt.key", "rsa")
-
-	keyPair, err := ks.RSA(keyName)
+func NewJWT(cfg Config, ks *keystore.KeyStore) (*JWT, error) {
+	keyPair, err := ks.RSA(cfg.KeyName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get JWT key '%s': %w", keyName, err)
+		return nil, fmt.Errorf("failed to get JWT key '%s': %w", cfg.KeyName, err)
 	}
 
 	return &JWT{
 		privateKey: keyPair.PrivateKey,
 		publicKey:  keyPair.PublicKey,
-		issuer:     config.String("discovery.issuer", "http://localhost"),
-		expiresIn:  config.Int("jwt.expires_in", 86400),
+		issuer:     cfg.Issuer,
+		expiresIn:  cfg.ExpiresIn,
 	}, nil
 }
 

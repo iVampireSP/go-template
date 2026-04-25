@@ -4,20 +4,18 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/XSAM/otelsql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/iVampireSP/go-template/ent"
-	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	semconv "go.opentelemetry.io/otel/semconv/v1.40.0"
 )
 
 // NewORM creates a new ent client for MySQL/TiDB.
-func NewORM() *ent.Client {
-	db, err := OpenDB()
+func NewORM(cfg Config) *ent.Client {
+	db, err := OpenDB(cfg)
 	if err != nil {
 		panic(fmt.Errorf("failed to open database connection: %w", err))
 	}
@@ -30,22 +28,22 @@ func NewORM() *ent.Client {
 }
 
 // GetDSN returns the MySQL DSN string from config.
-func GetDSN() string {
+func GetDSN(cfg Config) string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&loc=Local&charset=utf8mb4",
-		config.String("database.app.user", "root"),
-		config.String("database.app.password"),
-		config.String("database.app.host", "localhost"),
-		config.Int("database.app.port", 4000),
-		config.String("database.app.name", "cloud"),
+		cfg.User,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Name,
 	)
 }
 
 // OpenDB opens a MySQL database connection with OTel SQL tracing.
-func OpenDB() (*sql.DB, error) {
-	db, err := otelsql.Open("mysql", GetDSN(),
+func OpenDB(cfg Config) (*sql.DB, error) {
+	db, err := otelsql.Open("mysql", GetDSN(cfg),
 		otelsql.WithAttributes(
 			semconv.DBSystemNameMySQL,
-			semconv.DBNamespace(config.String("database.app.name", "cloud")),
+			semconv.DBNamespace(cfg.Name),
 		),
 		otelsql.WithSpanOptions(otelsql.SpanOptions{
 			DisableErrSkip: true,
@@ -56,10 +54,10 @@ func OpenDB() (*sql.DB, error) {
 	}
 
 	// Configure connection pool to prevent port exhaustion
-	db.SetMaxOpenConns(config.Int("database.app.max_open_conns", 25))
-	db.SetMaxIdleConns(config.Int("database.app.max_idle_conns", 5))
-	db.SetConnMaxLifetime(time.Duration(config.Int("database.app.conn_max_lifetime_seconds", 300)) * time.Second)
-	db.SetConnMaxIdleTime(time.Duration(config.Int("database.app.conn_max_idle_time_seconds", 60)) * time.Second)
+	db.SetMaxOpenConns(cfg.MaxOpenConns)
+	db.SetMaxIdleConns(cfg.MaxIdleConns)
+	db.SetConnMaxLifetime(cfg.ConnMaxLifetime)
+	db.SetConnMaxIdleTime(cfg.ConnMaxIdleTime)
 
 	return db, nil
 }

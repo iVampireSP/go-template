@@ -9,7 +9,7 @@ import (
 )
 
 func TestSchedulerStartReturnsErrorWhenCronIsNil(t *testing.T) {
-	scheduler := New(nil, nil, nil, &cobra.Command{Use: "app"})
+	scheduler := NewScheduler(nil, nil, nil, &cobra.Command{Use: "app"})
 	scheduler.Define().Call("test-event", func(ctx context.Context) error { return nil }).EveryMinute()
 
 	err := scheduler.Start(context.Background())

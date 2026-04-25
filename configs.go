@@ -3,7 +3,7 @@ package main
 import (
 	"embed"
 
-	migratecmd "github.com/iVampireSP/go-template/cmd/migrate"
+	migratecmd "github.com/iVampireSP/go-template/pkg/foundation/orm/command"
 	"github.com/iVampireSP/go-template/pkg/foundation/config"
 	"github.com/iVampireSP/go-template/pkg/foundation/i18n"
 	"github.com/iVampireSP/go-template/pkg/foundation/tmpl"
@@ -23,7 +23,7 @@ var templatesFS embed.FS
 
 func init() {
 	config.MustInitWithFS(configsFS, "configs")
-	i18n.MustInitWithFS(langFS, "lang")
+	i18n.MustInitWithFS(i18n.NewDefaultConfig(), langFS, "lang")
 	migratecmd.MustInitWithFS(migrationsFS)
 	tmpl.MustInitWithFS(templatesFS)
 }

@@ -25,14 +25,16 @@ type Span struct {
 var traceIDPattern = regexp.MustCompile(`^[a-f0-9]{16,32}$`)
 
 func GetTrace(ctx context.Context, traceID string) (*Trace, bool, error) {
-	t, err := NewTracing()
-	if err != nil {
-		if errors.Is(err, ErrTracingDisabled) {
+	if globalTracing == nil {
+		if globalTracingErr != nil && errors.Is(globalTracingErr, ErrTracingDisabled) {
 			return nil, false, nil
 		}
-		return nil, false, err
+		if globalTracingErr != nil {
+			return nil, false, globalTracingErr
+		}
+		return nil, false, ErrTracingNotInitialized
 	}
-	return t.GetTrace(ctx, traceID)
+	return globalTracing.GetTrace(ctx, traceID)
 }
 
 func (t *Tracing) GetTrace(ctx context.Context, traceID string) (*Trace, bool, error) {
