@@ -12,7 +12,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
-	github.com/gookit/validate v1.5.6
+	github.com/gookit/validate v1.5.7
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.23.2
@@ -54,7 +54,7 @@ require (
 	github.com/go-test/deep v1.1.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/gookit/filter v1.2.3 // indirect
-	github.com/gookit/goutil v0.7.3 // indirect
+	github.com/gookit/goutil v0.7.4 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
 	github.com/hibiken/asynq v0.26.0
